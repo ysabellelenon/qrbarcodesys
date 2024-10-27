@@ -1,0 +1,82 @@
+/* static/css/style.css */
+body {
+    font-family: 'Poppins', Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #a7aaac;
+    color: #333;
+}
+
+.login-container {
+    display: flex;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    padding: 30px;
+    width: auto;
+    min-width: 600px;
+}
+
+.image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.image-container img {
+    width: 230px;
+    height: auto;
+    display: block;
+}
+
+.form-container {
+    padding: 20px;
+    width: 300px;
+}
+
+input, button, label {
+    font-family: 'Poppins', Arial, sans-serif;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+    width: 100%;
+}
+
+label {
+    width: 100px;
+    text-align: right;
+    margin-right: 10px;
+    font-weight: 400;
+}
+
+input {
+    padding: 6px 8px;
+    font-size: 13px;
+    width: 70%;
+    box-sizing: border-box;
+}
+
+.button-container {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+button {
+    cursor: pointer;
+    background-color: #a5a5a5;
+    color: black;
+    border: 1px solid black;
+    margin-top: 20px;
+    padding: 5px 15px;
+    font-size: 14px;
+    width: auto;
+}

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 
 app = Flask(__name__)
 app.secret_key = 'QRBARCODE_KEY'
@@ -40,21 +40,21 @@ def register():
         
         # Ensure both username and password are provided
         if not username or not password:
-            flash('Username and password are required!', 'error')
-            return render_template('register.html')
+            return jsonify({'error': 'Username and password are required!'}), 400
         
         # Check if admin account already exists
         if admin_user['username'] == username:
-            flash('Admin account already exists.', 'error')
-            return render_template('register.html')
+            return jsonify({'error': 'Admin account already exists.'}), 400
         
         # Register the admin account
         admin_user['username'] = username
         admin_user['password'] = password
-        flash('Admin registered successfully!', 'success')
         
-        # Redirect to the login page after successful registration
-        return redirect(url_for('login'))
+        # Return success response with redirect URL
+        return jsonify({
+            'message': 'Admin registered successfully!',
+            'redirect': url_for('login')
+        }), 200
 
     return render_template('register.html')
 

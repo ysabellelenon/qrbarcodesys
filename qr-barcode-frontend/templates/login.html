@@ -13,27 +13,121 @@
             <img src="{{ url_for('static', filename='img/jae-logo.jpg') }}" alt="JAE Logo">
         </div>
         <div class="form-container">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-              {% if messages %}
-                {% for category, message in messages %}
-                  <p class="{{ category }}">{{ message }}</p>
-                {% endfor %}
-              {% endif %}
-            {% endwith %}
-            <form action="{{ url_for('login') }}" method="post">
+            <div id="message-container">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <p class="{{ category }}">{{ message }}</p>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+            <form id="loginForm" action="{{ url_for('login') }}" method="post">
                 <div class="form-group">
                     <label for="username">Username:</label>
                     <input type="text" id="username" name="username" required>
+                    <span class="error-message" id="username-error"></span>
                 </div>
                 <div class="form-group">
                     <label for="password">Password:</label>
                     <input type="password" id="password" name="password" required>
+                    <span class="error-message" id="password-error"></span>
                 </div>
                 <div class="button-container">
-                    <button type="submit">Login</button>
+                    <button type="submit" id="submitBtn">
+                        <span class="button-text">Login</span>
+                        <span class="spinner hidden"></span>
+                    </button>
                 </div>
             </form>
         </div>
     </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Reset error messages
+            document.querySelectorAll('.error-message').forEach(elem => elem.textContent = '');
+            
+            // Get form data
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            // Basic validation
+            let hasError = false;
+            if (username.length < 3) {
+                document.getElementById('username-error').textContent = 'Username must be at least 3 characters';
+                hasError = true;
+            }
+            if (password.length < 6) {
+                document.getElementById('password-error').textContent = 'Password must be at least 6 characters';
+                hasError = true;
+            }
+            
+            if (hasError) return;
+
+            // Show loading state
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.querySelector('.button-text').classList.add('hidden');
+            submitBtn.querySelector('.spinner').classList.remove('hidden');
+
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams(new FormData(this))
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    window.location.href = result.redirect || '/dashboard';
+                } else {
+                    const messageContainer = document.getElementById('message-container');
+                    messageContainer.innerHTML = `<p class="error">${result.error || 'Login failed'}</p>`;
+                }
+            } catch (error) {
+                const messageContainer = document.getElementById('message-container');
+                messageContainer.innerHTML = '<p class="error">An error occurred. Please try again.</p>';
+            } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitBtn.querySelector('.button-text').classList.remove('hidden');
+                submitBtn.querySelector('.spinner').classList.add('hidden');
+            }
+        });
+    </script>
+
+    <style>
+        .error-message {
+            color: #ff0000;
+            font-size: 0.8em;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </body>
 </html>

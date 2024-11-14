@@ -1,9 +1,13 @@
-# app.py
-
 from flask import Flask, render_template, request, redirect, url_for, flash
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Replace with a secure key
+
+# Dummy admin user data (you can store this in a database for production)
+admin_user = {
+    'username': 'admin',
+    'password': 'password'  # In production, store a hashed password (not plaintext)
+}
 
 # Home route redirects to login
 @app.route('/')
@@ -17,8 +21,8 @@ def login():
         username = request.form['username']
         password = request.form['password']
         
-        # Simulated backend response (replace with actual API request)
-        if username == "admin" and password == "password":
+        # Check if credentials match the admin account
+        if username == admin_user['username'] and password == admin_user['password']:
             flash("Login successful!", "success")
             return redirect(url_for('engineering_interface'))
         else:
@@ -26,6 +30,33 @@ def login():
             return redirect(url_for('login'))
 
     return render_template('login.html')
+
+# Admin registration page
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
+        # Ensure both username and password are provided
+        if not username or not password:
+            flash('Username and password are required!', 'error')
+            return render_template('register.html')
+        
+        # Check if admin account already exists
+        if admin_user['username'] == username:
+            flash('Admin account already exists.', 'error')
+            return render_template('register.html')
+        
+        # Register the admin account
+        admin_user['username'] = username
+        admin_user['password'] = password
+        flash('Admin registered successfully!', 'success')
+        
+        # Redirect to the login page after successful registration
+        return redirect(url_for('login'))
+
+    return render_template('register.html')
 
 # Engineering Log In Interface (Admin)
 @app.route('/engineering')
@@ -35,7 +66,6 @@ def engineering_interface():
 # Placeholder for manage accounts functionality
 @app.route('/manage-accounts')
 def manage_accounts():
-    # This can later be filled with functionality or a page template for account management
     flash("Manage Accounts page under development.", "info")
     return redirect(url_for('engineering_interface'))
 

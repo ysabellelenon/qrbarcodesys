@@ -14,6 +14,7 @@ body {
 /* Login container styling */
 .login-container {
     display: flex;
+    flex-direction: row;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -22,9 +23,8 @@ body {
     width: auto;
     min-width: 600px;
     position: relative;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
 }
 
 /* Image container for logo */
@@ -33,6 +33,7 @@ body {
     align-items: center;
     justify-content: center;
     padding: 20px;
+    margin-right: 20px;
 }
 
 /* Logo styling */
@@ -46,6 +47,7 @@ body {
 .form-container {
     padding: 30px;
     width: 300px;
+    margin-left: 20px;
 }
 
 /* Form and button styling */
@@ -96,10 +98,12 @@ button {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-top: 20px;
     align-items: center;
+    justify-content: center;
     width: 100%;
     max-width: 300px;
+    margin: 0 auto;
+    padding-top: 40px;
 }
 
 .menu-item {
@@ -143,6 +147,7 @@ button {
     position: absolute;
     top: 10px;
     left: 10px;
+    z-index: 1000;
 }
 
 .file-button {
@@ -167,4 +172,20 @@ button {
 
 .file-menu:hover .file-dropdown {
     display: block;
+}
+
+/* Add new styles for engineer login page */
+.engineer-container {
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    padding: 40px;
+    width: auto;
+    min-width: 600px;
+    position: relative;
+    align-items: center;
+    justify-content: center;
 }

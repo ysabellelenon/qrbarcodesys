@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item Masterlist</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="masterlist-container">
+        <h2>Item Masterlist</h2>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Item Name</th>
+                    <th>Rev.</th>
+                    <th>QR Code Content</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.no }}</td>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.rev }}</td>
+                    <td>{{ item.content }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="button-group">
+            <a href="{{ url_for('revise_item') }}" class="menu-item">Revise</a>
+            <a href="{{ url_for('new_register') }}" class="menu-item">New Register</a>
+        </div>
+    </div>
+</body>
+</html>

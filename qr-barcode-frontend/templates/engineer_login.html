@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engineering Interface</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="file-menu">
+            <button class="file-button">File</button>
+            <div class="file-dropdown">
+                <form action="{{ url_for('logout') }}" method="post">
+                    <button type="submit" class="logout-button">Logout</button>
+                </form>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              {% if message != "Login successful!" %}
+                <p class="{{ category }}">{{ message }}</p>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        
+        <div class="menu">
+            <a href="{{ url_for('manage_accounts') }}" class="menu-item">Admin Account Settings</a>
+            <a href="{{ url_for('item_masterlist') }}" class="menu-item">Item Masterlist</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,13 +1,20 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from models import db, User
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.secret_key = 'QRBARCODE_KEY'
 
-# Dummy admin user data (you can store this in a database for production)
-admin_user = {
-    'username': 'admin',
-    'password': 'password'  # In production, store a hashed password (not plaintext)
-}
+# Database configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///qr_barcode.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize the database
+db.init_app(app)
+
+# Create tables
+with app.app_context():
+    db.create_all()
 
 # Home route redirects to login
 @app.route('/')
@@ -20,14 +27,18 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        
-        # Check if credentials match the admin account
-        if username == admin_user['username'] and password == admin_user['password']:
-            flash("Login successful!", "success")
-            return redirect(url_for('engineering_interface'))
+
+        user = User.query.filter_by(username=username).first()
+
+        if user and check_password_hash(user.password, password):
+            return jsonify({
+                'message': 'Login successful!',
+                'redirect': url_for('engineering_interface')
+            }), 200
         else:
-            flash("Login failed. Please try again.", "danger")
-            return redirect(url_for('login'))
+            return jsonify({
+                'error': 'Invalid username or password'
+            }), 401
 
     return render_template('login.html')
 
@@ -35,26 +46,46 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        
-        # Ensure both username and password are provided
-        if not username or not password:
-            return jsonify({'error': 'Username and password are required!'}), 400
-        
-        # Check if admin account already exists
-        if admin_user['username'] == username:
-            return jsonify({'error': 'Admin account already exists.'}), 400
-        
-        # Register the admin account
-        admin_user['username'] = username
-        admin_user['password'] = password
-        
-        # Return success response with redirect URL
-        return jsonify({
-            'message': 'Admin registered successfully!',
-            'redirect': url_for('login')
-        }), 200
+        try:
+            # Get form data
+            first_name = request.form['first_name']
+            last_name = request.form['last_name']
+            username = request.form['username']
+            email = request.form['email']
+            role = request.form['role']
+            phone = request.form['phone']
+            password = request.form['password']
+
+            # Check if username or email already exists
+            if User.query.filter_by(username=username).first():
+                return jsonify({'error': 'Username already exists'}), 400
+            if User.query.filter_by(email=email).first():
+                return jsonify({'error': 'Email already exists'}), 400
+
+            # Create new user
+            new_user = User(
+                first_name=first_name,
+                last_name=last_name,
+                username=username,
+                email=email,
+                role=role,
+                phone=phone,
+                password=generate_password_hash(password)
+            )
+
+            # Add to database
+            db.session.add(new_user)
+            db.session.commit()
+
+            return jsonify({
+                'message': 'Registration successful!',
+                'redirect': url_for('login')
+            }), 200
+
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error during registration: {str(e)}")
+            return jsonify({'error': 'Registration failed. Please try again.'}), 500
 
     return render_template('register.html')
 

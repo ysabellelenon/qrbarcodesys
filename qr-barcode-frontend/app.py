@@ -14,6 +14,7 @@ db.init_app(app)
 
 # Create tables
 with app.app_context():
+    db.drop_all()
     db.create_all()
 
 # Home route redirects to login
@@ -102,22 +103,24 @@ def edit_user(user_id):
 @app.route('/create-account', methods=['POST'])
 def create_account():
     if request.method == 'POST':
-        new_user = User(
-            first_name=request.form['first_name'],
-            last_name=request.form['last_name'],
-            username=request.form['username'],
-            email=request.form['email'],
-            role=request.form['role'],
-            phone=request.form['phone'],
-            password=generate_password_hash(request.form['password'])
-        )
-        
         try:
+            new_user = User(
+                first_name=request.form['first_name'],
+                middle_name=request.form['middle_name'],
+                surname=request.form['surname'],
+                section=request.form['section'],
+                username=request.form['username'],
+                role=request.form['role'],
+                password=generate_password_hash(request.form['password'])
+            )
+            
             db.session.add(new_user)
             db.session.commit()
             flash('Account created successfully!', 'success')
-        except:
+            
+        except Exception as e:
             db.session.rollback()
+            print(f"Error creating account: {str(e)}")  # For debugging
             flash('Error creating account. Please try again.', 'error')
             
     return redirect(url_for('manage_accounts'))

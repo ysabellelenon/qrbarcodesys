@@ -69,6 +69,7 @@
                         <th class="checkbox-column">
                             <input type="checkbox" id="selectAll">
                         </th>
+                        <th>No.</th>
                         <th>Last Name</th>
                         <th>First Name</th>
                         <th>Line No.</th>
@@ -81,7 +82,8 @@
                         <td class="checkbox-column">
                             <input type="checkbox" name="user_ids[]" value="{{ user.id }}">
                         </td>
-                        <td>{{ user.last_name }}</td>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ user.surname }}</td>
                         <td>{{ user.first_name }}</td>
                         <td>{{ user.role }}</td>
                         <td>

@@ -62,7 +62,7 @@
         
         <h2>Registered Users</h2>
 
-        <form id="userForm" action="{{ url_for('delete_users') }}" method="post">
+        <form id="userForm" action="{{ url_for('delete_users') }}" method="post" onsubmit="return confirmDelete()">
             <table>
                 <thead>
                     <tr>
@@ -105,6 +105,22 @@
                 checkbox.checked = this.checked;
             });
         });
+
+        function confirmDelete() {
+            const checkboxes = document.getElementsByName('user_ids[]');
+            const selectedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+            
+            if (selectedCount === 0) {
+                alert('Please select at least one user to delete.');
+                return false;
+            }
+
+            const message = selectedCount === 1 
+                ? 'Are you sure you want to delete this user?' 
+                : `Are you sure you want to delete these ${selectedCount} users?`;
+
+            return confirm(message);
+        }
     </script>
 </body>
 </html> 

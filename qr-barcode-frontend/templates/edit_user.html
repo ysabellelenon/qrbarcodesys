@@ -136,9 +136,9 @@
                 <h3>Account Details</h3>
                 <div class="form-group">
                     <label for="username">Username</label>
-                    <input type="text" id="username" name="username" value="{{ user.username }}" required>
+                    <input type="text" id="username" name="username" value="{{ user.username }}" required oninput="validateNumberInput(this)">
                 </div>
-
+                
                 <div class="form-group">
                     <label for="category">Category</label>
                     <select id="category" name="role" required>
@@ -178,6 +178,10 @@
             }
             return true;
         }
+        function validateNumberInput(input) {
+        // Remove non-numeric characters
+        input.value = input.value.replace(/[^0-9]/g, '');
+    }
     </script>
 </body>
 </html> 

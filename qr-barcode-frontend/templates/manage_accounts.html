@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Accounts</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        /* Style for the back button */
+        .back-button {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            color: #333;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-bottom: 15px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+        .back-button:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* Adjust h2 margin to prevent overlap with back button */
+        h2 {
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="engineer-container">
+        <!-- Back Button -->
+        <a href="javascript:history.back()" class="back-button">Back</a>
+    
+        <div class="menu">
+            <a href="{{ url_for('manage_existing_accounts') }}" class="menu-item">Manage Account</a>
+            <a href="{{ url_for('new_account') }}" class="menu-item">New Account</a>
+        </div>
+    </div>
+</body>
+</html> 

@@ -47,11 +47,10 @@ def login():
 def engineering_interface():
     return render_template('engineer_login.html')
 
-# Placeholder for manage accounts functionality
+# Update the manage accounts route
 @app.route('/manage-accounts')
 def manage_accounts():
-    flash("Manage Accounts page under development.", "info")
-    return redirect(url_for('engineering_interface'))
+    return render_template('manage_accounts.html')
 
 # Item Masterlist page
 @app.route('/item-masterlist')
@@ -66,18 +65,23 @@ def item_masterlist():
 # Placeholder route for new item registration or revision
 @app.route('/new-register')
 def new_register():
-    flash("Redirected to Item Registration for a new item.", "info")
     return redirect(url_for('item_registration'))
 
 @app.route('/revise-item')
 def revise_item():
-    flash("Redirected to Item Registration to revise the selected item.", "info")
     return redirect(url_for('item_registration'))
 
 @app.route('/logout', methods=['POST'])
 def logout():
-    flash("Logged out successfully.", "success")
     return redirect(url_for('login'))
+
+@app.route('/manage-existing-accounts')
+def manage_existing_accounts():
+    return redirect(url_for('manage_accounts'))
+
+@app.route('/new-account')
+def new_account():
+    return redirect(url_for('manage_accounts'))
 
 if __name__ == '__main__':
     app.run(debug=True)

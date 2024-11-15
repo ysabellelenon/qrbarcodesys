@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from models import db, User
 from werkzeug.security import generate_password_hash, check_password_hash
+import os
 
 app = Flask(__name__)
 app.secret_key = 'QRBARCODE_KEY'
@@ -12,10 +13,10 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Initialize the database
 db.init_app(app)
 
-# Create tables
+# Create tables only if they don't exist
 with app.app_context():
-    db.drop_all()
-    db.create_all()
+    if not os.path.exists('qr_barcode.db'):
+        db.create_all()
 
 # Home route redirects to login
 @app.route('/')
@@ -99,6 +100,31 @@ def delete_users():
 def edit_user(user_id):
     user = User.query.get_or_404(user_id)
     return render_template('edit_user.html', user=user)
+
+@app.route('/update-user/<int:user_id>', methods=['POST'])
+def update_user(user_id):
+    user = User.query.get_or_404(user_id)
+    
+    try:
+        user.first_name = request.form['first_name']
+        user.middle_name = request.form['middle_name']
+        user.surname = request.form['surname']
+        user.section = request.form['section']
+        user.username = request.form['username']
+        user.role = request.form['role']
+        
+        # Update password only if a new one is provided
+        if request.form['password']:
+            user.password = generate_password_hash(request.form['password'])
+        
+        db.session.commit()
+        flash('Account updated successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error updating account: {str(e)}")
+        flash('Error updating account. Please try again.', 'error')
+    
+    return redirect(url_for('manage_accounts'))
 
 @app.route('/create-account', methods=['POST'])
 def create_account():

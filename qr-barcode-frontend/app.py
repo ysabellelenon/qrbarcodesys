@@ -152,14 +152,23 @@ def register_item():
 @app.route('/create-item', methods=['POST'])
 def create_item():
     try:
+        code_count = int(request.form['code_count'])
+        categories = []
+        label_contents = []
+        
+        # Collect all categories and label contents
+        for i in range(1, code_count + 1):
+            categories.append(request.form[f'category_{i}'])
+            label_contents.append(request.form[f'label_content_{i}'])
+        
         # Create a new item
         new_item = Item(
             name=request.form['name'],
             revision=int(request.form['revision']),
-            code_count=int(request.form['code_count']),
-            category=request.form['category'],
-            label_content=request.form['label_content'],
-            qr_content=f"{request.form['label_content']}-{request.form['revision']}"
+            code_count=code_count,
+            category=','.join(categories),  # Store as comma-separated string
+            label_content=','.join(label_contents),  # Store as comma-separated string
+            qr_content=f"{','.join(label_contents)}-{request.form['revision']}"
         )
         
         # Add and commit to get the ID
@@ -170,19 +179,18 @@ def create_item():
         session['item_data'] = {
             'name': request.form['name'],
             'revision': int(request.form['revision']),
-            'code_count': int(request.form['code_count']),
-            'category': request.form['category'],
-            'label_content': request.form['label_content']
+            'code_count': code_count,
+            'categories': categories,
+            'label_contents': label_contents
         }
         
-        # Check category and redirect accordingly
-        if request.form['category'] == 'Counting':
+        # If any category is 'Counting', redirect to sublot config
+        if 'Counting' in categories:
             return redirect(url_for('sublot_config', item_id=new_item.id))
         else:
             return render_template('review_item.html', item=new_item)
             
     except Exception as e:
-        # Rollback the session in case of error
         db.session.rollback()
         print(f"Error creating item: {str(e)}")
         flash('Error registering item. Please try again.', 'error')
@@ -254,27 +262,63 @@ def update_item(item_id):
 
 @app.route('/sublot_config/<int:item_id>')
 def sublot_config(item_id):
-    return render_template('sublot_config.html', item_id=item_id)
+    # Get the item data from session
+    item_data = session.get('item_data', {})
+    
+    # Get categories and label contents
+    categories = item_data.get('categories', [])
+    label_contents = item_data.get('label_contents', [])
+    
+    # Create a list of counting categories with their label contents
+    counting_items = [
+        {'label': label_contents[i], 'index': i + 1}
+        for i, category in enumerate(categories)
+        if category == 'Counting'
+    ]
+    
+    return render_template('sublot_config.html', 
+                         item_id=item_id,
+                         counting_items=counting_items)
 
 @app.route('/revise_item/<int:item_id>', methods=['POST'])
 def revise_item(item_id):
-    # Get form data
-    enable_sublot = request.form.get('enable_sublot') == 'on'
-    serial_numbers = request.form.get('serial_numbers')
+    # Get the item data from session
+    item_data = session.get('item_data', {})
+    categories = item_data.get('categories', [])
+    
+    # Initialize dictionaries to store configurations
+    enabled_sublots = {}
+    serial_numbers = {}
+    
+    # Collect data for each counting category
+    counting_index = 1
+    for i, category in enumerate(categories):
+        if category == 'Counting':
+            # Check if this sublot is enabled
+            enabled = request.form.get(f'enable_sublot_{counting_index}') == 'on'
+            enabled_sublots[i] = enabled
+            
+            # Get serial number if enabled
+            if enabled:
+                serial_number = request.form.get(f'serial_numbers_{counting_index}')
+                if serial_number:
+                    serial_numbers[i] = serial_number
+            
+            counting_index += 1
     
     # Get the item
     item = Item.query.get_or_404(item_id)
     
     # Store the data in session for later use
     session['sublot_config'] = {
-        'enable_sublot': enable_sublot,
+        'enabled_sublots': enabled_sublots,
         'serial_numbers': serial_numbers
     }
     
-    # Render the review page with both item and sublot data
+    # Render the review page with the configuration data
     return render_template('review_item.html', 
                          item=item,
-                         enable_sublot=enable_sublot,
+                         enabled_sublots=enabled_sublots,
                          serial_numbers=serial_numbers)
 
 # Add this route after the login route
@@ -293,4 +337,4 @@ def new_account():
     return render_template('new_account.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5001)

@@ -40,56 +40,32 @@
         .form-section {
             width: 100%;
             max-width: 800px;
-            margin: 0;
+            margin: 0 0 20px 0;
             padding: 20px;
             border: 1px solid #ddd;
             border-radius: 4px;
             background-color: #fff;
+        }
+
+        .section-content {
             display: flex;
+            flex-direction: row;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
             gap: 40px;
         }
 
-        .form-group {
-            margin-bottom: 0;
+        .sublot-config {
+            flex-grow: 1;
             display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            flex: 0 1 auto;
-        }
-
-        .form-group label {
-            display: inline-block;
-            margin-bottom: 0;
-            font-weight: 500;
-            white-space: normal;
-            line-height: 1.2;
-            text-align: left;
-            width: auto;
-            font-size: 14px;
-        }
-
-        .form-group select {
-            width: 100px;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-            box-sizing: border-box;
-            align-self: flex-start;
+            justify-content: flex-start;
         }
 
         .checkbox-group {
-            margin-bottom: 0;
             display: flex;
-            flex-direction: row;
             align-items: center;
-            justify-content: center;
             gap: 15px;
-            flex: 0 1 auto;
+            min-width: 300px;
         }
 
         .checkbox-group input[type="checkbox"] {
@@ -101,14 +77,30 @@
         }
 
         .checkbox-group label {
-            margin-bottom: 0;
+            text-align: left;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .form-group label {
+            text-align: left;
             white-space: normal;
             line-height: 1.2;
-            text-align: left;
-            min-height: 2.4em;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .form-group select {
+            width: 100px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
             font-size: 14px;
         }
 
@@ -152,6 +144,17 @@
             color: #333;
             text-align: center;
         }
+
+        .form-group select:disabled {
+            background-color: #f5f5f5;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .form-group select:not(:disabled) {
+            background-color: white;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -159,22 +162,36 @@
         <a href="javascript:history.back()" class="back-button">Back</a>
 
         <form class="config-form" action="{{ url_for('revise_item', item_id=item_id) }}" method="post">
+            {% for item in counting_items %}
             <div class="form-section">
-                <div class="checkbox-group">
-                    <label for="enable_sublot">Enable Sub-Lot<br>number rules</label>
-                    <input type="checkbox" id="enable_sublot" name="enable_sublot">
-                </div>
+                <div class="section-content">
+                    <div class="checkbox-group">
+                        <label for="enable_sublot_{{ item.index }}">Enable Sub-Lot number rules for<br>"{{ item.label }}"</label>
+                        <input type="checkbox" 
+                               id="enable_sublot_{{ item.index }}" 
+                               name="enable_sublot_{{ item.index }}"
+                               class="sublot-checkbox">
+                    </div>
 
-                <div class="form-group">
-                    <label for="serial_numbers">Number of serial no.<br>of sub-lot</label>
-                    <select id="serial_numbers" name="serial_numbers" disabled>
-                        <option value="">Select Number</option>
-                        {% for i in range(1, 11) %}
-                            <option value="{{ i }}">{{ i }}</option>
-                        {% endfor %}
-                    </select>
+                    <div id="sublot-config-{{ item.index }}" class="sublot-config">
+                        <div class="form-group">
+                            <label for="serial_numbers_{{ item.index }}">
+                                Number of serial no. for<br>"{{ item.label }}"
+                            </label>
+                            <select id="serial_numbers_{{ item.index }}" 
+                                    name="serial_numbers_{{ item.index }}" 
+                                    required
+                                    disabled>
+                                <option value="">Select Number</option>
+                                {% for i in range(1, 11) %}
+                                    <option value="{{ i }}">{{ i }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
+            {% endfor %}
 
             <div class="button-container">
                 <button type="submit" class="next-button">Next</button>
@@ -183,12 +200,17 @@
     </div>
 
     <script>
-        document.getElementById('enable_sublot').addEventListener('change', function() {
-            const serialNumbers = document.getElementById('serial_numbers');
-            serialNumbers.disabled = !this.checked;
-            if (!this.checked) {
-                serialNumbers.value = '';
-            }
+        document.querySelectorAll('.sublot-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const index = this.id.split('_').pop();
+                const select = document.getElementById(`serial_numbers_${index}`);
+                
+                select.disabled = !this.checked;
+                
+                if (!this.checked) {
+                    select.value = '';
+                }
+            });
         });
     </script>
 </body>

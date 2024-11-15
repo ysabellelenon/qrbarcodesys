@@ -30,7 +30,7 @@
             margin-top: 20px;
             display: flex;
             gap: 10px;
-            justify-content: flex-end;
+            justify-content: space-between;
         }
 
         .action-button {
@@ -99,6 +99,16 @@
             height: 16px;
             cursor: pointer;
         }
+
+        .delete-button {
+            background-color: #ff6b6b;
+            color: white;
+            border: 1px solid #ff5252;
+        }
+
+        .delete-button:hover {
+            background-color: #ff5252;
+        }
     </style>
 </head>
 <body>
@@ -149,16 +159,67 @@
         </table>
 
         <div class="action-buttons">
+            <button id="deleteButton" class="action-button delete-button" style="display: none;">Delete</button>
             <a href="{{ url_for('register_item') }}" class="action-button">New Register</a>
         </div>
+
+        <form id="deleteForm" action="{{ url_for('delete_items') }}" method="POST" style="display: none;">
+            <!-- Hidden inputs will be dynamically added here -->
+        </form>
     </div>
 
     <script>
-        document.getElementById('selectAll').addEventListener('change', function() {
-            const checkboxes = document.getElementsByName('selected_items[]');
-            checkboxes.forEach(checkbox => {
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const deleteButton = document.getElementById('deleteButton');
+        const deleteForm = document.getElementById('deleteForm');
+        const itemCheckboxes = document.getElementsByName('selected_items[]');
+
+        // Select All functionality
+        selectAllCheckbox.addEventListener('change', function() {
+            itemCheckboxes.forEach(checkbox => {
                 checkbox.checked = this.checked;
             });
+            updateDeleteButtonVisibility();
+        });
+
+        // Individual checkbox change handler
+        itemCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateDeleteButtonVisibility);
+        });
+
+        // Update delete button visibility
+        function updateDeleteButtonVisibility() {
+            const checkedBoxes = Array.from(itemCheckboxes).filter(cb => cb.checked);
+            deleteButton.style.display = checkedBoxes.length > 0 ? 'block' : 'none';
+        }
+
+        // Delete button click handler
+        deleteButton.addEventListener('click', function() {
+            const checkedBoxes = Array.from(itemCheckboxes).filter(cb => cb.checked);
+            
+            if (checkedBoxes.length === 0) return;
+
+            const itemCount = checkedBoxes.length;
+            const confirmMessage = itemCount === 1 
+                ? 'Are you sure you want to delete this item?' 
+                : `Are you sure you want to delete these ${itemCount} items?`;
+
+            if (confirm(confirmMessage)) {
+                // Clear previous hidden inputs
+                deleteForm.innerHTML = '';
+                
+                // Add hidden inputs for each selected item
+                checkedBoxes.forEach(checkbox => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'item_ids[]';
+                    input.value = checkbox.value;
+                    deleteForm.appendChild(input);
+                });
+
+                // Submit the form
+                deleteForm.submit();
+            }
         });
     </script>
 </body>

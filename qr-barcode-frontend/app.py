@@ -48,9 +48,9 @@ def engineering_interface():
     return render_template('engineer_login.html')
 
 # Update the manage accounts route
-@app.route('/manage-accounts')
-def manage_accounts():
-    return render_template('manage_accounts.html')
+@app.route('/account-settings')
+def account_settings():
+    return render_template('account_settings.html')
 
 # Item Masterlist page
 @app.route('/item-masterlist')
@@ -75,12 +75,51 @@ def revise_item():
 def logout():
     return redirect(url_for('login'))
 
-@app.route('/manage-existing-accounts')
-def manage_existing_accounts():
-    return redirect(url_for('manage_accounts'))
+@app.route('/manage-accounts')
+def manage_accounts():
+    users = User.query.all()
+    return render_template('manage_accounts.html', users=users)
 
 @app.route('/new-account')
 def new_account():
+    return render_template('new_account.html')
+
+@app.route('/delete-users', methods=['POST'])
+def delete_users():
+    user_ids = request.form.getlist('user_ids[]')
+    for user_id in user_ids:
+        user = User.query.get(user_id)
+        if user:
+            db.session.delete(user)
+    db.session.commit()
+    return redirect(url_for('manage_existing_accounts'))
+
+@app.route('/edit-user/<int:user_id>')
+def edit_user(user_id):
+    user = User.query.get_or_404(user_id)
+    return render_template('edit_user.html', user=user)
+
+@app.route('/create-account', methods=['POST'])
+def create_account():
+    if request.method == 'POST':
+        new_user = User(
+            first_name=request.form['first_name'],
+            last_name=request.form['last_name'],
+            username=request.form['username'],
+            email=request.form['email'],
+            role=request.form['role'],
+            phone=request.form['phone'],
+            password=generate_password_hash(request.form['password'])
+        )
+        
+        try:
+            db.session.add(new_user)
+            db.session.commit()
+            flash('Account created successfully!', 'success')
+        except:
+            db.session.rollback()
+            flash('Error creating account. Please try again.', 'error')
+            
     return redirect(url_for('manage_accounts'))
 
 if __name__ == '__main__':

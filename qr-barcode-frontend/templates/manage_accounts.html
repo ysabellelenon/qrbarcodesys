@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Accounts</title>
+    <title>Manage Existing Accounts</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <style>
-        /* Style for the back button */
         .back-button {
             display: inline-block;
             padding: 8px 16px;
@@ -27,21 +26,85 @@
             background-color: #e0e0e0;
         }
 
-        /* Adjust h2 margin to prevent overlap with back button */
-        h2 {
-            margin-top: 40px;
+        .action-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .action-button {
+            padding: 8px 16px;
+            background-color: #a5a5a5;
+            border: 1px solid black;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .action-button:hover {
+            background-color: #888;
+        }
+
+        .delete-button {
+            background-color: #ff6b6b;
+            color: white;
+        }
+
+        .checkbox-column {
+            width: 50px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <div class="engineer-container">
-        <!-- Back Button -->
+    <div class="masterlist-container">
         <a href="javascript:history.back()" class="back-button">Back</a>
-    
-        <div class="menu">
-            <a href="{{ url_for('manage_existing_accounts') }}" class="menu-item">Manage Account</a>
-            <a href="{{ url_for('new_account') }}" class="menu-item">New Account</a>
-        </div>
+        
+        <h2>Registered Users</h2>
+
+        <form id="userForm" action="{{ url_for('delete_users') }}" method="post">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="checkbox-column">
+                            <input type="checkbox" id="selectAll">
+                        </th>
+                        <th>Last Name</th>
+                        <th>First Name</th>
+                        <th>Line No.</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td class="checkbox-column">
+                            <input type="checkbox" name="user_ids[]" value="{{ user.id }}">
+                        </td>
+                        <td>{{ user.last_name }}</td>
+                        <td>{{ user.first_name }}</td>
+                        <td>{{ user.role }}</td>
+                        <td>
+                            <a href="{{ url_for('edit_user', user_id=user.id) }}" class="action-button">Edit</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="action-buttons">
+                <button type="submit" class="action-button delete-button">Delete Selected</button>
+            </div>
+        </form>
     </div>
+
+    <script>
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const checkboxes = document.getElementsByName('user_ids[]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+    </script>
 </body>
 </html> 

@@ -14,13 +14,7 @@
         </div>
         <div class="form-container">
             <div id="message-container">
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <p class="{{ category }}">{{ message }}</p>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
+                <!-- Remove the flash messages section from here -->
             </div>
             <form id="loginForm" action="{{ url_for('login') }}" method="post">
                 <div class="form-group">
@@ -36,7 +30,7 @@
                 <div class="button-container">
                     <button type="submit" id="submitBtn">
                         <span class="button-text">Login</span>
-                        <span class="spinner hidden"></span>
+                        <span class="spinner" style="display: none;"></span>
                     </button>
                 </div>
             </form>
@@ -67,11 +61,15 @@
             
             if (hasError) return;
 
-            // Show loading state
+            // Show loading state only after validation passes and form is submitted
             const submitBtn = document.getElementById('submitBtn');
+            const buttonText = submitBtn.querySelector('.button-text');
+            const spinner = submitBtn.querySelector('.spinner');
+            
+            // Hide text, show spinner
+            buttonText.style.display = 'none';
+            spinner.style.display = 'inline-block';
             submitBtn.disabled = true;
-            submitBtn.querySelector('.button-text').classList.add('hidden');
-            submitBtn.querySelector('.spinner').classList.remove('hidden');
 
             try {
                 const response = await fetch(this.action, {
@@ -95,9 +93,9 @@
                 messageContainer.innerHTML = '<p class="error">An error occurred. Please try again.</p>';
             } finally {
                 // Reset button state
+                buttonText.style.display = 'inline';
+                spinner.style.display = 'none';
                 submitBtn.disabled = false;
-                submitBtn.querySelector('.button-text').classList.remove('hidden');
-                submitBtn.querySelector('.spinner').classList.add('hidden');
             }
         });
     </script>
@@ -110,10 +108,6 @@
             display: block;
         }
 
-        .hidden {
-            display: none;
-        }
-
         .spinner {
             width: 20px;
             height: 20px;
@@ -121,7 +115,8 @@
             border-top: 3px solid #3498db;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            display: inline-block;
+            display: none;
+            vertical-align: middle;
         }
 
         @keyframes spin {

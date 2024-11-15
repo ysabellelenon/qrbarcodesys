@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from models import db, User
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
@@ -21,11 +21,16 @@ with app.app_context():
 # Home route redirects to login
 @app.route('/')
 def home():
+    session.clear()  # Clear any existing session data
     return redirect(url_for('login'))
 
 # Login page
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # Clear any existing flash messages when accessing login page
+    if request.method == 'GET':
+        session.pop('_flashes', None)
+    
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -113,7 +118,6 @@ def update_user(user_id):
         user.username = request.form['username']
         user.role = request.form['role']
         
-        # Update password only if a new one is provided
         if request.form['password']:
             user.password = generate_password_hash(request.form['password'])
         
@@ -146,7 +150,7 @@ def create_account():
             
         except Exception as e:
             db.session.rollback()
-            print(f"Error creating account: {str(e)}")  # For debugging
+            print(f"Error creating account: {str(e)}")
             flash('Error creating account. Please try again.', 'error')
             
     return redirect(url_for('manage_accounts'))

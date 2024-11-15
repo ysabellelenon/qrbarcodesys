@@ -125,7 +125,7 @@
 
                 <div class="form-group">
                     <label for="code_count">No. of Code</label>
-                    <select id="code_count" name="code_count" required>
+                    <select id="code_count" name="code_count" required onchange="updateFields()">
                         <option value="">Select Number of Codes</option>
                         {% for i in range(1, 21) %}
                             <option value="{{ i }}">{{ i }}</option>
@@ -133,18 +133,8 @@
                     </select>
                 </div>
 
-                <div class="form-group">
-                    <label for="category">Category</label>
-                    <select id="category" name="category" required>
-                        <option value="">Select Category</option>
-                        <option value="Counting">Counting</option>
-                        <option value="Non-Counting">Non-Counting</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="label_content">Label Content</label>
-                    <input type="text" id="label_content" name="label_content" required>
+                <div id="dynamic-fields">
+                    <!-- Dynamic fields for category and label content will be added here -->
                 </div>
             </div>
 
@@ -153,5 +143,37 @@
             </div>
         </form>
     </div>
+
+    <script>
+        function updateFields() {
+            const codeCount = document.getElementById('code_count').value;
+            const dynamicFields = document.getElementById('dynamic-fields');
+            dynamicFields.innerHTML = ''; // Clear previous fields
+
+            for (let i = 1; i <= codeCount; i++) {
+                // Create category field
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'form-group';
+                categoryDiv.innerHTML = `
+                    <label for="category_${i}">Category ${i}</label>
+                    <select id="category_${i}" name="category_${i}" required>
+                        <option value="">Select Category</option>
+                        <option value="Counting">Counting</option>
+                        <option value="Non-Counting">Non-Counting</option>
+                    </select>
+                `;
+                dynamicFields.appendChild(categoryDiv);
+
+                // Create label content field
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'form-group';
+                labelDiv.innerHTML = `
+                    <label for="label_content_${i}">Label Content ${i}</label>
+                    <input type="text" id="label_content_${i}" name="label_content_${i}" required>
+                `;
+                dynamicFields.appendChild(labelDiv);
+            }
+        }
+    </script>
 </body>
-</html> 
+</html>

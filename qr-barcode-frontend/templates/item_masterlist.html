@@ -141,7 +141,7 @@
                     <td>{{ item.revision }}</td>
                     <td>{{ item.label_content }}</td>
                     <td>
-                        <a href="{{ url_for('revise_item', item_id=item.id) }}" class="action-button">Revise</a>
+                        <a href="{{ url_for('revise_item_page', item_id=item.id) }}" class="action-button">Revise</a>
                     </td>
                 </tr>
                 {% endfor %}

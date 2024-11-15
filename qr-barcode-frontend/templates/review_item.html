@@ -76,6 +76,17 @@
             overflow-y: auto;
             padding: 60px 40px 40px 40px;
         }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        h3 {
+            margin-bottom: 20px;
+            color: #444;
+        }
     </style>
 </head>
 <body>
@@ -84,17 +95,23 @@
             <h2>Review Item Details</h2>
             
             <div class="review-section">
-                <h3>Sub-Lot Configuration</h3>
+                <h3>Item Information</h3>
                 <div class="review-item">
-                    <div class="review-label">Sub-Lot Rules:</div>
-                    <div class="review-value">{{ "Enabled" if enable_sublot else "Disabled" }}</div>
+                    <div class="review-label">Item Name:</div>
+                    <div class="review-value">{{ item.name }}</div>
                 </div>
-                {% if enable_sublot %}
                 <div class="review-item">
-                    <div class="review-label">Number of Serial Numbers:</div>
-                    <div class="review-value">{{ serial_numbers }}</div>
+                    <div class="review-label">Rev No.:</div>
+                    <div class="review-value">{{ item.revision }}</div>
                 </div>
-                {% endif %}
+                <div class="review-item">
+                    <div class="review-label">No. of QR Code:</div>
+                    <div class="review-value">{{ item.code_count }}</div>
+                </div>
+                <div class="review-item">
+                    <div class="review-label">Label Content:</div>
+                    <div class="review-value">{{ item.label_content }}</div>
+                </div>
             </div>
 
             <form action="{{ url_for('item_masterlist') }}" method="post">

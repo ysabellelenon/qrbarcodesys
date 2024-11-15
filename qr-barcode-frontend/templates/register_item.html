@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Item Registration</title>
+    <title>Register New Item</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <style>
         .back-button {
@@ -45,13 +45,6 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             background-color: #fff;
-        }
-
-        .form-section h3 {
-            margin-top: 0;
-            margin-bottom: 20px;
-            color: #333;
-            font-size: 1.1em;
         }
 
         .form-group {
@@ -100,16 +93,6 @@
             padding: 60px 40px 40px 40px;
         }
 
-        select {
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            background-size: 1em;
-        }
-
         h2 {
             margin-bottom: 40px;
             color: #333;
@@ -121,11 +104,10 @@
     <div class="engineer-container">
         <a href="javascript:history.back()" class="back-button">Back</a>
         
-        <h2>Item Registration</h2>
+        <h2>Register New Item</h2>
 
-        <form class="registration-form" action="{{ url_for('sublot_config') }}" method="post">
+        <form class="registration-form" action="{{ url_for('create_item') }}" method="post">
             <div class="form-section">
-                <h3>Item Details</h3>
                 <div class="form-group">
                     <label for="item_name">Item Name</label>
                     <input type="text" id="item_name" name="name" required>

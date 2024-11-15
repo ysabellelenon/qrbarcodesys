@@ -123,18 +123,93 @@ def delete_users():
     return redirect(url_for('manage_existing_accounts'))
 
 # Item management routes
-@app.route('/item-masterlist')
+@app.route('/item-masterlist', methods=['GET', 'POST'])
 def item_masterlist():
+    if request.method == 'POST':
+        try:
+            # Get the item data from session if it exists
+            item_data = session.get('item_data', {})
+            
+            # Clear the session data
+            session.pop('item_data', None)
+            
+            flash('Item registered successfully!', 'success')
+            return redirect(url_for('item_masterlist'))
+            
+        except Exception as e:
+            print(f"Error registering item: {str(e)}")
+            flash('Error registering item. Please try again.', 'error')
+            return redirect(url_for('item_masterlist'))
+    
+    # GET method - display the masterlist
     items = Item.query.all()
     return render_template('item_masterlist.html', items=items)
 
-@app.route('/register-item')
+@app.route('/register-item', methods=['GET'])
 def register_item():
     return render_template('register_item.html')
 
-@app.route('/revise-item/<int:item_id>')
+@app.route('/create-item', methods=['POST'])
+def create_item():
+    try:
+        # Create a new item
+        new_item = Item(
+            name=request.form['name'],
+            revision=int(request.form['revision']),
+            code_count=int(request.form['code_count']),
+            category=request.form['category'],
+            label_content=request.form['label_content'],
+            qr_content=f"{request.form['label_content']}-{request.form['revision']}"
+        )
+        
+        # Add and commit to get the ID
+        db.session.add(new_item)
+        db.session.commit()
+        
+        # Store the item data in session
+        session['item_data'] = {
+            'name': request.form['name'],
+            'revision': int(request.form['revision']),
+            'code_count': int(request.form['code_count']),
+            'category': request.form['category'],
+            'label_content': request.form['label_content']
+        }
+        
+        # Check category and redirect accordingly
+        if request.form['category'] == 'Counting':
+            return redirect(url_for('sublot_config', item_id=new_item.id))
+        else:
+            return render_template('review_item.html', item=new_item)
+            
+    except Exception as e:
+        # Rollback the session in case of error
+        db.session.rollback()
+        print(f"Error creating item: {str(e)}")
+        flash('Error registering item. Please try again.', 'error')
+        return redirect(url_for('register_item'))
+
+@app.route('/revise-item/<int:item_id>', methods=['GET', 'POST'])
 def revise_item_page(item_id):
     item = Item.query.get_or_404(item_id)
+    if request.method == 'POST':
+        try:
+            item.name = request.form['name']
+            item.revision = int(request.form['revision'])
+            item.code_count = int(request.form['code_count'])
+            item.category = request.form['category']
+            item.label_content = request.form['label_content']
+            item.qr_content = f"{request.form['label_content']}-{request.form['revision']}"
+            item.updated_at = datetime.utcnow()
+            
+            db.session.commit()
+            flash('Item updated successfully!', 'success')
+            return redirect(url_for('item_masterlist'))
+            
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error updating item: {str(e)}")
+            flash('Error updating item. Please try again.', 'error')
+            
     return render_template('revise_item.html', item=item)
 
 @app.route('/delete-items', methods=['POST'])
@@ -154,41 +229,6 @@ def delete_items():
             flash('Error deleting items. Please try again.', 'error')
     
     return redirect(url_for('item_masterlist'))
-
-@app.route('/create-item', methods=['POST'])
-def create_item():
-    try:
-        # Get item data from session
-        item_data = session.get('item_data', {})
-        
-        # Get sublot configuration
-        enable_sublot = request.form.get('enable_sublot') == 'on'
-        serial_numbers = request.form.get('serial_numbers', '')
-        
-        # Create new item
-        new_item = Item(
-            name=item_data['name'],
-            revision=item_data['revision'],
-            code_count=item_data['code_count'],
-            category=item_data['category'],
-            label_content=item_data['label_content'],
-            qr_content=f"{item_data['label_content']}-{item_data['revision']}"
-        )
-        
-        db.session.add(new_item)
-        db.session.commit()
-        
-        # Clear the session data
-        session.pop('item_data', None)
-        
-        flash('Item registered successfully!', 'success')
-        return redirect(url_for('item_masterlist'))
-        
-    except Exception as e:
-        db.session.rollback()
-        print(f"Error creating item: {str(e)}")
-        flash('Error registering item. Please try again.', 'error')
-        return redirect(url_for('register_item'))
 
 @app.route('/update-item/<int:item_id>', methods=['POST'])
 def update_item(item_id):
@@ -231,9 +271,9 @@ def revise_item(item_id):
         'serial_numbers': serial_numbers
     }
     
-    # Render the review page
+    # Render the review page with both item and sublot data
     return render_template('review_item.html', 
-                         item_id=item_id,
+                         item=item,
                          enable_sublot=enable_sublot,
                          serial_numbers=serial_numbers)
 

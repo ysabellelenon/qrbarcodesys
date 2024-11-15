@@ -42,53 +42,6 @@ def login():
 
     return render_template('login.html')
 
-# Admin registration page
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        try:
-            # Get form data
-            first_name = request.form['first_name']
-            last_name = request.form['last_name']
-            username = request.form['username']
-            email = request.form['email']
-            role = request.form['role']
-            phone = request.form['phone']
-            password = request.form['password']
-
-            # Check if username or email already exists
-            if User.query.filter_by(username=username).first():
-                return jsonify({'error': 'Username already exists'}), 400
-            if User.query.filter_by(email=email).first():
-                return jsonify({'error': 'Email already exists'}), 400
-
-            # Create new user
-            new_user = User(
-                first_name=first_name,
-                last_name=last_name,
-                username=username,
-                email=email,
-                role=role,
-                phone=phone,
-                password=generate_password_hash(password)
-            )
-
-            # Add to database
-            db.session.add(new_user)
-            db.session.commit()
-
-            return jsonify({
-                'message': 'Registration successful!',
-                'redirect': url_for('login')
-            }), 200
-
-        except Exception as e:
-            db.session.rollback()
-            print(f"Error during registration: {str(e)}")
-            return jsonify({'error': 'Registration failed. Please try again.'}), 500
-
-    return render_template('register.html')
-
 # Engineering Log In Interface (Admin)
 @app.route('/engineering')
 def engineering_interface():

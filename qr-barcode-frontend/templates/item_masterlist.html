@@ -109,6 +109,18 @@
         .delete-button:hover {
             background-color: #ff5252;
         }
+
+        tr[data-main-row="true"] {
+            border-top: 2px solid #ddd;
+        }
+
+        td {
+            vertical-align: middle;
+        }
+
+        td[rowspan] {
+            background-color: #f8f8f8;
+        }
     </style>
 </head>
 <body>
@@ -136,24 +148,35 @@
                     <th>No.</th>
                     <th>Item Name</th>
                     <th>REV.</th>
-                    <th>QR Code Content</th>
+                    <th>Category</th>
+                    <th>Label Content</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for item in items %}
-                <tr>
-                    <td class="checkbox-column">
-                        <input type="checkbox" name="selected_items[]" value="{{ item.id }}">
-                    </td>
-                    <td>{{ loop.index }}</td>
-                    <td>{{ item.name }}</td>
-                    <td>{{ item.revision }}</td>
-                    <td>{{ item.label_content }}</td>
-                    <td>
-                        <a href="{{ url_for('revise_item_page', item_id=item.id) }}" class="action-button">Revise</a>
-                    </td>
-                </tr>
+                    {% set outer_loop = loop %}
+                    {% set categories = item.category.split(',') %}
+                    {% set label_contents = item.label_content.split(',') %}
+                    {% for i in range(categories|length) %}
+                        <tr {% if i == 0 %}data-main-row="true"{% endif %}>
+                            {% if i == 0 %}
+                                <td class="checkbox-column" rowspan="{{ categories|length }}">
+                                    <input type="checkbox" name="selected_items[]" value="{{ item.id }}">
+                                </td>
+                                <td rowspan="{{ categories|length }}">{{ outer_loop.index }}</td>
+                                <td rowspan="{{ categories|length }}">{{ item.name }}</td>
+                                <td rowspan="{{ categories|length }}">{{ item.revision }}</td>
+                            {% endif %}
+                            <td>{{ categories[i]|trim }}</td>
+                            <td>{{ label_contents[i]|trim }}</td>
+                            {% if i == 0 %}
+                                <td rowspan="{{ categories|length }}">
+                                    <a href="{{ url_for('revise_item_page', item_id=item.id) }}" class="action-button">Revise</a>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
                 {% endfor %}
             </tbody>
         </table>

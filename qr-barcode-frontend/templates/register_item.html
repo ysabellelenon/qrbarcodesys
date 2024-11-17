@@ -134,10 +134,10 @@
                 </div>
 
                 <div id="dynamic-fields">
-                    <!-- Dynamic fields for category and label content will be added here -->
+                    <!-- Dynamic fields will be added here -->
                 </div>
             </div>
-
+            
             <div class="button-container">
                 <button type="submit" class="next-button">Next</button>
             </div>
@@ -151,6 +151,17 @@
             dynamicFields.innerHTML = ''; // Clear previous fields
 
             for (let i = 1; i <= codeCount; i++) {
+                // Create a container for each code entry
+                const codeContainer = document.createElement('div');
+                codeContainer.className = 'form-section';
+                codeContainer.style.marginTop = '20px';
+                
+                // Add a header for each code
+                const header = document.createElement('h3');
+                header.textContent = `Code ${i}`;
+                header.style.marginBottom = '15px';
+                codeContainer.appendChild(header);
+
                 // Create category field
                 const categoryDiv = document.createElement('div');
                 categoryDiv.className = 'form-group';
@@ -162,7 +173,7 @@
                         <option value="Non-Counting">Non-Counting</option>
                     </select>
                 `;
-                dynamicFields.appendChild(categoryDiv);
+                codeContainer.appendChild(categoryDiv);
 
                 // Create label content field
                 const labelDiv = document.createElement('div');
@@ -171,7 +182,10 @@
                     <label for="label_content_${i}">Label Content ${i}</label>
                     <input type="text" id="label_content_${i}" name="label_content_${i}" required>
                 `;
-                dynamicFields.appendChild(labelDiv);
+                codeContainer.appendChild(labelDiv);
+
+                // Add the container to dynamic fields
+                dynamicFields.appendChild(codeContainer);
             }
         }
     </script>

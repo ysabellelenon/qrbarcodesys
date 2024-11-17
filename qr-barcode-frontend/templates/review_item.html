@@ -108,13 +108,34 @@
                     <div class="review-label">No. of QR Code:</div>
                     <div class="review-value">{{ item.code_count }}</div>
                 </div>
-                <div class="review-item">
-                    <div class="review-label">Label Content:</div>
-                    <div class="review-value">{{ item.label_content }}</div>
-                </div>
             </div>
 
+            <!-- Add new section for individual code details -->
+            {% for i in range(1, item.code_count + 1) %}
+            <div class="review-section">
+                <h3>Code {{ i }} Details</h3>
+                <div class="review-item">
+                    <div class="review-label">Category:</div>
+                    <div class="review-value">{{ item['category_' ~ i] }}</div>
+                </div>
+                <div class="review-item">
+                    <div class="review-label">Label Content:</div>
+                    <div class="review-value">{{ item['label_content_' ~ i] }}</div>
+                </div>
+            </div>
+            {% endfor %}
+
             <form action="{{ url_for('item_masterlist') }}" method="post">
+                <!-- Hidden inputs to send all data -->
+                <input type="hidden" name="name" value="{{ item.name }}">
+                <input type="hidden" name="revision" value="{{ item.revision }}">
+                <input type="hidden" name="code_count" value="{{ item.code_count }}">
+                
+                {% for i in range(1, item.code_count + 1) %}
+                    <input type="hidden" name="category_{{ i }}" value="{{ item['category_' ~ i] }}">
+                    <input type="hidden" name="label_content_{{ i }}" value="{{ item['label_content_' ~ i] }}">
+                {% endfor %}
+
                 <div class="button-container">
                     <button type="button" class="back-button" onclick="history.back()">Back</button>
                     <button type="submit" class="register-button">Register</button>

@@ -143,6 +143,10 @@ def item_masterlist():
     
     # GET method - display the masterlist
     items = Item.query.all()
+    for item in items:
+        # Clean the data by removing any extra whitespace
+        item.label_content = ','.join(content.strip() for content in item.label_content.split(','))
+        item.category = ','.join(category.strip() for category in item.category.split(','))
     return render_template('item_masterlist.html', items=items)
 
 @app.route('/register-item', methods=['GET'])
@@ -153,21 +157,30 @@ def register_item():
 def create_item():
     try:
         code_count = int(request.form['code_count'])
-        categories = []
-        label_contents = []
         
-        # Collect all categories and label contents
+        # Create a dictionary to hold all the item data
+        item_data = {
+            'name': request.form['name'],
+            'revision': int(request.form['revision']),
+            'code_count': code_count
+        }
+        
+        # Add category and label content for each code
         for i in range(1, code_count + 1):
-            categories.append(request.form[f'category_{i}'])
-            label_contents.append(request.form[f'label_content_{i}'])
+            item_data[f'category_{i}'] = request.form[f'category_{i}']
+            item_data[f'label_content_{i}'] = request.form[f'label_content_{i}']
+        
+        # Create categories and label_contents lists for database
+        categories = [request.form[f'category_{i}'] for i in range(1, code_count + 1)]
+        label_contents = [request.form[f'label_content_{i}'] for i in range(1, code_count + 1)]
         
         # Create a new item
         new_item = Item(
             name=request.form['name'],
             revision=int(request.form['revision']),
             code_count=code_count,
-            category=','.join(categories),  # Store as comma-separated string
-            label_content=','.join(label_contents),  # Store as comma-separated string
+            category=','.join(categories),
+            label_content=','.join(label_contents),
             qr_content=f"{','.join(label_contents)}-{request.form['revision']}"
         )
         
@@ -175,20 +188,13 @@ def create_item():
         db.session.add(new_item)
         db.session.commit()
         
-        # Store the item data in session
-        session['item_data'] = {
-            'name': request.form['name'],
-            'revision': int(request.form['revision']),
-            'code_count': code_count,
-            'categories': categories,
-            'label_contents': label_contents
-        }
-        
         # If any category is 'Counting', redirect to sublot config
         if 'Counting' in categories:
+            session['item_data'] = item_data
             return redirect(url_for('sublot_config', item_id=new_item.id))
         else:
-            return render_template('review_item.html', item=new_item)
+            # Pass the item_data dictionary instead of the database model
+            return render_template('review_item.html', item=item_data)
             
     except Exception as e:
         db.session.rollback()
@@ -201,12 +207,21 @@ def revise_item_page(item_id):
     item = Item.query.get_or_404(item_id)
     if request.method == 'POST':
         try:
+            code_count = int(request.form['code_count'])
+            
+            # Get categories and label contents from form
+            categories = []
+            label_contents = []
+            for i in range(1, code_count + 1):
+                categories.append(request.form[f'category_{i}'])
+                label_contents.append(request.form[f'label_content_{i}'])
+            
             item.name = request.form['name']
             item.revision = int(request.form['revision'])
-            item.code_count = int(request.form['code_count'])
-            item.category = request.form['category']
-            item.label_content = request.form['label_content']
-            item.qr_content = f"{request.form['label_content']}-{request.form['revision']}"
+            item.code_count = code_count
+            item.category = ','.join(categories)
+            item.label_content = ','.join(label_contents)
+            item.qr_content = f"{','.join(label_contents)}-{request.form['revision']}"
             item.updated_at = datetime.utcnow()
             
             db.session.commit()

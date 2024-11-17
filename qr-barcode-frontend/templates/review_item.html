@@ -111,19 +111,38 @@
             </div>
 
             <!-- Add new section for individual code details -->
-            {% for i in range(1, item.code_count + 1) %}
+            {% set categories = item.category.split(',') %}
+            {% set label_contents = item.label_content.split(',') %}
+            {% for i in range(item.code_count) %}
             <div class="review-section">
-                <h3>Code {{ i }} Details</h3>
+                <h3>Code {{ i + 1 }} Details</h3>
                 <div class="review-item">
                     <div class="review-label">Category:</div>
-                    <div class="review-value">{{ item['category_' ~ i] }}</div>
+                    <div class="review-value">{{ categories[i]|trim }}</div>
                 </div>
                 <div class="review-item">
                     <div class="review-label">Label Content:</div>
-                    <div class="review-value">{{ item['label_content_' ~ i] }}</div>
+                    <div class="review-value">{{ label_contents[i]|trim }}</div>
                 </div>
             </div>
             {% endfor %}
+
+            <!-- If there are sublot configurations, show them -->
+            {% if enabled_sublots is defined %}
+                <div class="review-section">
+                    <h3>Sub-Lot Configurations</h3>
+                    {% for index, enabled in enabled_sublots.items() %}
+                        {% if enabled %}
+                            <div class="review-item">
+                                <div class="review-label">Code {{ index + 1 }} Sub-Lot:</div>
+                                <div class="review-value">
+                                    Enabled ({{ serial_numbers.get(index, 'N/A') }} serial numbers)
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
 
             <form action="{{ url_for('item_masterlist') }}" method="post">
                 <!-- Hidden inputs to send all data -->
@@ -144,4 +163,5 @@
         </div>
     </div>
 </body>
+</html> 
 </html> 

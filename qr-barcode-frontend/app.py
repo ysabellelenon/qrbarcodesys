@@ -158,18 +158,6 @@ def create_item():
     try:
         code_count = int(request.form['code_count'])
         
-        # Create a dictionary to hold all the item data
-        item_data = {
-            'name': request.form['name'],
-            'revision': int(request.form['revision']),
-            'code_count': code_count
-        }
-        
-        # Add category and label content for each code
-        for i in range(1, code_count + 1):
-            item_data[f'category_{i}'] = request.form[f'category_{i}']
-            item_data[f'label_content_{i}'] = request.form[f'label_content_{i}']
-        
         # Create categories and label_contents lists for database
         categories = [request.form[f'category_{i}'] for i in range(1, code_count + 1)]
         label_contents = [request.form[f'label_content_{i}'] for i in range(1, code_count + 1)]
@@ -190,11 +178,17 @@ def create_item():
         
         # If any category is 'Counting', redirect to sublot config
         if 'Counting' in categories:
-            session['item_data'] = item_data
+            # Store the necessary data in session
+            session['item_data'] = {
+                'name': request.form['name'],
+                'revision': int(request.form['revision']),
+                'code_count': code_count,
+                'categories': categories,
+                'label_contents': label_contents
+            }
             return redirect(url_for('sublot_config', item_id=new_item.id))
         else:
-            # Pass the item_data dictionary instead of the database model
-            return render_template('review_item.html', item=item_data)
+            return render_template('review_item.html', item=new_item)
             
     except Exception as e:
         db.session.rollback()
@@ -285,11 +279,13 @@ def sublot_config(item_id):
     label_contents = item_data.get('label_contents', [])
     
     # Create a list of counting categories with their label contents
-    counting_items = [
-        {'label': label_contents[i], 'index': i + 1}
-        for i, category in enumerate(categories)
-        if category == 'Counting'
-    ]
+    counting_items = []
+    for i, (category, label) in enumerate(zip(categories, label_contents)):
+        if category == 'Counting':
+            counting_items.append({
+                'label': label,
+                'index': i + 1
+            })
     
     return render_template('sublot_config.html', 
                          item_id=item_id,

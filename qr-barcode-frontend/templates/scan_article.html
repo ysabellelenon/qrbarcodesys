@@ -47,24 +47,40 @@
             background-color: #fff;
         }
 
-        .form-group {
+        .info-group, .form-group {
             margin-bottom: 15px;
+            display: flex;
+            align-items: center;
         }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
+        .info-group label, .form-group label {
+            min-width: 100px;
             text-align: left;
             font-weight: 500;
+            color: #666;
+            margin-right: 10px;
+        }
+
+        .info-value {
+            flex: 1;
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+            padding: 8px;
+            border: 1px solid transparent;
         }
 
         .form-group input {
-            width: 100%;
+            flex: 1;
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 14px;
             box-sizing: border-box;
+            height: 35px;
+            white-space: normal;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .form-group input[readonly] {
@@ -102,23 +118,32 @@
             text-align: center;
         }
 
-        .info-group {
+        .lot-number-group {
             margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
         }
 
-        .info-group label {
-            display: block;
-            margin-bottom: 5px;
+        .lot-number-group label {
+            min-width: 100px;
             text-align: left;
             font-weight: 500;
             color: #666;
+            margin-right: 10px;
         }
 
-        .info-value {
-            font-size: 16px;
+        .lot-number-value {
+            flex: 1;
+            font-size: 14px;
             color: #333;
-            padding: 4px 0;
             font-weight: 500;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: #f5f5f5;
+            height: 15px;
+            display: flex;
+            align-items: center;
         }
     </style>
 </head>
@@ -131,18 +156,24 @@
         <form class="registration-form" method="post">
             <div class="form-section">
                 <div class="info-group">
-                    <label>Item Name</label>
+                    <label>Item Name:</label>
                     <div class="info-value">{{ item_name }}</div>
                 </div>
 
                 <div class="info-group">
-                    <label>P.O No.</label>
+                    <label>P.O No:</label>
                     <div class="info-value">{{ po_number }}</div>
                 </div>
 
                 <div class="form-group">
-                    <label for="article_label">Article Label</label>
-                    <input type="text" id="article_label" name="article_label" required autofocus>
+                    <label for="article_label">Article Label:</label>
+                    <input type="text" id="article_label" name="article_label" required autofocus 
+                           oninput="updateLotNumber(this.value)">
+                </div>
+
+                <div class="lot-number-group">
+                    <label>Lot Number:</label>
+                    <div id="lot_number" class="lot-number-value"></div>
                 </div>
 
                 <div class="button-container">
@@ -151,5 +182,21 @@
             </div>
         </form>
     </div>
+
+    <script>
+        function updateLotNumber(articleLabel) {
+            // Extract everything after the last space
+            const lastSpaceIndex = articleLabel.lastIndexOf(' ');
+            const lotNumberElement = document.getElementById('lot_number');
+            
+            if (lastSpaceIndex !== -1) {
+                // Get everything after the last space
+                const lotNumber = articleLabel.substring(lastSpaceIndex + 1).trim();
+                lotNumberElement.textContent = lotNumber;
+            } else {
+                lotNumberElement.textContent = '';
+            }
+        }
+    </script>
 </body>
 </html> 

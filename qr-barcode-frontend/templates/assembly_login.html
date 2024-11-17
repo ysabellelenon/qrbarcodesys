@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assembly Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        .back-button {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            color: #333;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-bottom: 15px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+        .back-button:hover {
+            background-color: #e0e0e0;
+        }
+
+        .registration-form {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .form-section {
+            flex: 1;
+            min-width: 300px;
+            max-width: 380px;
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fff;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .button-container {
+            width: 100%;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .submit-button {
+            padding: 10px 30px;
+            font-size: 16px;
+            background-color: #a5a5a5;
+            border: 1px solid black;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .submit-button:hover {
+            background-color: #888;
+        }
+
+        .engineer-container {
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 60px 40px 40px 40px;
+        }
+
+        h2 {
+            margin-bottom: 40px;
+            color: #333;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="engineer-container">
+        <a href="{{ url_for('engineering_interface') }}" class="back-button">Back</a>
+        
+        <h2>Scan P.O and Item Name</h2>
+
+        <form class="registration-form" action="{{ url_for('assembly_login') }}" method="post">
+            <div class="form-section">
+                <div class="form-group">
+                    <label for="item_name">Item Name</label>
+                    <input type="text" id="item_name" name="item_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="po_number">P.O No.</label>
+                    <input type="text" id="po_number" name="po_number" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="total_qty">Total QTY</label>
+                    <input type="number" id="total_qty" name="total_qty" required>
+                </div>
+
+                <div class="button-container">
+                    <button type="submit" class="submit-button">Ok</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</body>
+</html> 

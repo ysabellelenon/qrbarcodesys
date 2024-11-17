@@ -336,5 +336,31 @@ def account_settings():
 def new_account():
     return render_template('new_account.html')
 
+@app.route('/assembly-login', methods=['GET', 'POST'])
+def assembly_login():
+    if request.method == 'POST':
+        # Store the form data in session
+        session['item_name'] = request.form['item_name']
+        session['po_number'] = request.form['po_number']
+        session['total_qty'] = request.form['total_qty']
+        
+        return redirect(url_for('scan_article'))
+        
+    return render_template('assembly_login.html')
+
+@app.route('/scan-article')
+def scan_article():
+    # Get the stored data from session
+    item_name = session.get('item_name')
+    po_number = session.get('po_number')
+    
+    if not item_name or not po_number:
+        flash('Please complete the assembly login first', 'error')
+        return redirect(url_for('assembly_login'))
+        
+    return render_template('scan_article.html', 
+                         item_name=item_name, 
+                         po_number=po_number)
+
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

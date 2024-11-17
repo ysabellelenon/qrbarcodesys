@@ -1,2 +1,4 @@
 qrbarcode/  # Ignore virtual environment directory
 env/
+instance/*.db
+*.db

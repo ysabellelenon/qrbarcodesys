@@ -3,6 +3,8 @@ from models import db, User, Item
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from datetime import datetime
+from functools import wraps
+from flask import abort
 
 app = Flask(__name__)
 app.secret_key = 'QRBARCODE_KEY'
@@ -26,25 +28,26 @@ def home():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # Clear any existing flash messages when accessing login page
-    if request.method == 'GET':
-        session.pop('_flashes', None)
-    
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        user = User.query.filter_by(username=request.form['username']).first()
+        
+        if user and check_password_hash(user.password, request.form['password']):
+            session['user_role'] = user.role
+            
+            # Set redirect based on role
+            if user.role == 'Admin':
+                redirect_url = url_for('engineering_interface')
+            elif user.role == 'Assembly':
+                redirect_url = url_for('assembly_login')
+            else:
+                return jsonify({
+                    'error': 'Invalid user role'
+                }), 401
 
-        user = User.query.filter_by(username=username).first()
-
-        if user and check_password_hash(user.password, password):
             return jsonify({
                 'message': 'Login successful!',
-                'redirect': url_for('engineering_interface')
+                'redirect': redirect_url
             }), 200
-        else:
-            return jsonify({
-                'error': 'Invalid username or password'
-            }), 401
 
     return render_template('login.html')
 
@@ -345,31 +348,37 @@ def revise_item(item_id):
                          enabled_sublots=enabled_sublots,
                          serial_numbers=serial_numbers)
 
-# Add this route after the login route
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get('user_role') != 'Admin':
+            abort(403)  # Forbidden
+        return f(*args, **kwargs)
+    return decorated_function
+
+def assembly_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get('user_role') != 'Assembly':
+            abort(403)  # Forbidden
+        return f(*args, **kwargs)
+    return decorated_function
+
+# Protect admin routes
 @app.route('/engineering')
+@admin_required
 def engineering_interface():
     return render_template('engineer_login.html')
 
-# Add this route for account settings
-@app.route('/account-settings')
-def account_settings():
-    users = User.query.all()
-    return render_template('account_settings.html', users=users)
-
-@app.route('/new-account')
-def new_account():
-    return render_template('new_account.html')
-
+# Protect assembly routes
 @app.route('/assembly-login', methods=['GET', 'POST'])
+@assembly_required
 def assembly_login():
     if request.method == 'POST':
-        # Store the form data in session
         session['item_name'] = request.form['item_name']
         session['po_number'] = request.form['po_number']
         session['total_qty'] = request.form['total_qty']
-        
         return redirect(url_for('scan_article'))
-        
     return render_template('assembly_login.html')
 
 @app.route('/scan-article')
@@ -385,6 +394,17 @@ def scan_article():
     return render_template('scan_article.html', 
                          item_name=item_name, 
                          po_number=po_number)
+
+# Add this new route
+@app.route('/account-settings')
+@admin_required  # Protect this route for admin users only
+def account_settings():
+    return render_template('account_settings.html')
+
+@app.route('/new-account')
+@admin_required  # Protect this route for admin users only
+def new_account():
+    return render_template('new_account.html')
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)

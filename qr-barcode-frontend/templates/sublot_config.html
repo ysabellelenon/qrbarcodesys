@@ -125,12 +125,6 @@
             background-color: #888;
         }
 
-        .engineer-container {
-            max-height: 90vh;
-            overflow-y: auto;
-            padding: 100px 40px 40px 40px;
-        }
-
         select {
             appearance: none;
             -webkit-appearance: none;
@@ -159,9 +153,9 @@
         }
     </style>
 </head>
-<body>
+<body class="form-page">
     <div class="engineer-container">
-        <a href="javascript:history.back()" class="back-button">Back</a>
+        <a href="{{ url_for('register_item', preserve_state=True) }}" class="back-button">Back</a>
 
         <form class="config-form" action="{{ url_for('revise_item', item_id=item_id) }}" method="post">
             {% for item in counting_items %}

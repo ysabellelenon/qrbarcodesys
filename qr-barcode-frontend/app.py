@@ -167,6 +167,17 @@ def item_masterlist():
 
 @app.route('/register-item', methods=['GET'])
 def register_item():
+    # Check if we're coming back from sublot_config
+    if request.args.get('preserve_state') and 'item_data' in session:
+        item_data = session.get('item_data', {})
+        return render_template('register_item.html', 
+                             preserved_data={
+                                 'name': item_data.get('name'),
+                                 'revision': item_data.get('revision'),
+                                 'code_count': item_data.get('code_count'),
+                                 'categories': item_data.get('categories', []),
+                                 'label_contents': item_data.get('label_contents', [])
+                             })
     return render_template('register_item.html')
 
 @app.route('/create-item', methods=['POST'])

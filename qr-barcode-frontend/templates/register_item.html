@@ -89,12 +89,6 @@
             background-color: #888;
         }
 
-        .engineer-container {
-            max-height: 90vh;
-            overflow-y: auto;
-            padding: 60px 40px 40px 40px;
-        }
-
         h2 {
             margin-bottom: 40px;
             color: #333;
@@ -102,7 +96,7 @@
         }
     </style>
 </head>
-<body>
+<body class="form-page">
     <div class="engineer-container">
         <a href="javascript:history.back()" class="back-button">Back</a>
         
@@ -147,6 +141,23 @@
     </div>
 
     <script>
+        window.onload = function() {
+            {% if preserved_data %}
+                document.getElementById('item_name').value = "{{ preserved_data.name }}";
+                document.getElementById('revision').value = "{{ preserved_data.revision }}";
+                document.getElementById('code_count').value = "{{ preserved_data.code_count }}";
+                
+                updateFields();
+                
+                setTimeout(function() {
+                    {% for i in range(preserved_data.categories|length) %}
+                        document.getElementById('category_{{ i + 1 }}').value = "{{ preserved_data.categories[i] }}";
+                        document.getElementById('label_content_{{ i + 1 }}').value = "{{ preserved_data.label_contents[i] }}";
+                    {% endfor %}
+                }, 100);
+            {% endif %}
+        };
+
         function updateFields() {
             const codeCount = document.getElementById('code_count').value;
             const dynamicFields = document.getElementById('dynamic-fields');

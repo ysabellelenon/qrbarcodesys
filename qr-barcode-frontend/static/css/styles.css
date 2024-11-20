@@ -7,7 +7,7 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
-    padding: 20px 0;
+    padding: 0;
     background-color: #f5f7fa;
     color: #2d3748;
     overflow: hidden;
@@ -189,9 +189,9 @@ button {
     max-width: 90%;
     position: relative;
     align-items: center;
-    margin: 20px auto;
+    margin: 0 auto;
     height: auto;
-    max-height: calc(100vh - 40px);
+    max-height: calc(100vh - 80px);
     overflow-y: auto;
 }
 
@@ -382,9 +382,9 @@ button:hover:not(.file-button),
 .accounts-container {
     max-width: 1000px;
     width: 90%;
-    height: auto;  /* Changed from fixed height */
+    height: auto;
     min-height: 500px;
-    max-height: 700px;
+    max-height: 80vh;
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -392,7 +392,7 @@ button:hover:not(.file-button),
     flex-direction: column;
     position: relative;
     padding: 30px;
-    margin: 0 auto;
+    margin: 20px auto 0;
     overflow: hidden;
 }
 

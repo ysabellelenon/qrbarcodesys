@@ -143,16 +143,16 @@
     <script>
         window.onload = function() {
             {% if preserved_data %}
-                document.getElementById('item_name').value = "{{ preserved_data.name }}";
-                document.getElementById('revision').value = "{{ preserved_data.revision }}";
-                document.getElementById('code_count').value = "{{ preserved_data.code_count }}";
+                document.getElementById('item_name').value = '{{ preserved_data.name|safe|escape }}';
+                document.getElementById('revision').value = '{{ preserved_data.revision|safe|escape }}';
+                document.getElementById('code_count').value = '{{ preserved_data.code_count|safe|escape }}';
                 
                 updateFields();
                 
                 setTimeout(function() {
                     {% for i in range(preserved_data.categories|length) %}
-                        document.getElementById('category_{{ i + 1 }}').value = "{{ preserved_data.categories[i] }}";
-                        document.getElementById('label_content_{{ i + 1 }}').value = "{{ preserved_data.label_contents[i] }}";
+                        document.getElementById('category_{{ i + 1 }}').value = '{{ preserved_data.categories[i]|safe|escape }}';
+                        document.getElementById('label_content_{{ i + 1 }}').value = '{{ preserved_data.label_contents[i]|safe|escape }}';
                     {% endfor %}
                 }, 100);
             {% endif %}

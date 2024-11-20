@@ -16,14 +16,16 @@
             text-decoration: none;
             font-size: 14px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin-bottom: 15px;
+            transition: all 0.3s ease;
             position: absolute;
             top: 20px;
             left: 20px;
         }
+
         .back-button:hover {
-            background-color: #e0e0e0;
+            background-color: #047cc4 !important;
+            color: white !important;
+            border-color: #047cc4 !important;
         }
 
         .action-buttons {
@@ -84,7 +86,7 @@
             display: flex;
             flex-direction: column;
             position: relative;
-            padding: 30px;
+            padding: 20px;
             margin: 0 auto;
             overflow: hidden;
         }
@@ -94,17 +96,100 @@
             overflow-y: auto;
             border: 1px solid #ddd;
             border-radius: 4px;
-            margin: 15px 0;
+            margin: 0;
             padding: 0;
             position: relative;
+        }
+
+        .header-top {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            margin-bottom: 5px;
+        }
+
+        .back-button {
+            position: absolute;
+            left: 0;
+            top: 0;
+            margin: 0;
+        }
+
+        h2 {
+            margin: 0 auto;
+            padding-top: 20px;
+            padding-bottom: 15px;
+            text-align: center;
+        }
+
+        .search-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            margin: 0 0 5px 0;
+            padding: 0;
+        }
+
+        .search-container {
+            width: 250px;
+            margin-right: 0;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 14px;
+            height: 14px;
+            opacity: 0.6;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 6px 12px 6px 35px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #047cc4;
+            box-shadow: 0 0 0 2px rgba(4, 124, 196, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: #999;
+            font-size: 13px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3px;
+            color: #721c24;
+            margin: 0 0 5px 0;
+        }
+
+        /* Remove table margins */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
         }
     </style>
 </head>
 <body>
     <div class="accounts-container">
-        <a href="{{ url_for('account_settings') }}" class="back-button">Back</a>
-        
-        <h2>Registered Users</h2>
+        <div class="header-top">
+            <a href="{{ url_for('account_settings') }}" class="back-button">Back</a>
+            <h2>Registered Users</h2>
+        </div>
 
         <div id="message-container">
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -114,6 +199,17 @@
                     {% endfor %}
                 {% endif %}
             {% endwith %}
+        </div>
+
+        <div class="search-wrapper">
+            <div class="search-container">
+                <img src="{{ url_for('static', filename='img/search.png') }}" alt="Search" class="search-icon">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search...">
+            </div>
+        </div>
+
+        <div id="noResults" class="no-results" style="display: none;">
+            User does not exist
         </div>
 
         <form id="userForm" action="{{ url_for('delete_users') }}" method="post" onsubmit="return confirmDelete()">
@@ -179,6 +275,33 @@
 
             return confirm(message);
         }
+
+        // Add search functionality
+        const searchInput = document.getElementById('searchInput');
+        const tableRows = document.querySelectorAll('tbody tr');
+        const noResults = document.getElementById('noResults');
+
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            let hasResults = false;
+
+            tableRows.forEach(row => {
+                const lastName = row.children[2].textContent.toLowerCase();
+                const firstName = row.children[3].textContent.toLowerCase();
+                const lineNo = row.children[4].textContent.toLowerCase();
+                
+                if (lastName.includes(searchTerm) || 
+                    firstName.includes(searchTerm) || 
+                    lineNo.includes(searchTerm)) {
+                    row.classList.remove('hidden');
+                    hasResults = true;
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+
+            noResults.style.display = hasResults ? 'none' : 'block';
+        });
     </script>
 </body>
 </html> 

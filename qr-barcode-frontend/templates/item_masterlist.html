@@ -6,8 +6,23 @@
     <title>Item Masterlist</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <style>
+        .masterlist-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 30px;
+            height: 90vh;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
         .back-button {
-            display: inline-block;
+            position: absolute;
+            top: 20px;
+            left: 20px;
             padding: 8px 16px;
             background-color: #f0f0f0;
             border: 1px solid #ccc;
@@ -16,18 +31,13 @@
             text-decoration: none;
             font-size: 14px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            margin: 0;
+            transition: all 0.3s ease;
         }
+
         .back-button:hover {
-            background-color: #047cc4;
-            color: white;
-            border-color: #047cc4;
-            transform: translateY(-50%);
+            background-color: #047cc4 !important;
+            color: white !important;
+            border-color: #047cc4 !important;
         }
 
         .action-buttons {
@@ -74,53 +84,19 @@
             font-weight: 600;
         }
 
-        .masterlist-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 30px;
-            height: 90vh;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-
-        .header-section {
-            position: sticky;
-            top: 0;
-            background-color: white;
-            z-index: 2;
-            padding: 20px 0 10px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 0;
-        }
-
         .header-top {
             width: 100%;
-            position: relative;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            margin-top: 20px;
             margin-bottom: 20px;
         }
 
-        .back-button {
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            margin: 0;
-        }
-
         h2 {
-            position: static;
             margin: 0 0 30px 0;
             padding-bottom: 15px;
+            text-align: center;
         }
 
         h2::after {
@@ -139,6 +115,7 @@
         #message-container {
             position: static;
             width: 100%;
+            margin-bottom: 10px;
         }
 
         .table-container {
@@ -148,7 +125,6 @@
             border-radius: 4px;
             margin: 15px 0;
             padding: 0;
-            position: relative;
         }
 
         .footer-section {
@@ -264,24 +240,92 @@
             align-items: center;
             overflow: hidden;
         }
+
+        .search-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            margin: 10px 0;
+            padding: 0;
+        }
+
+        .search-container {
+            position: relative;
+            width: 250px;
+            margin: 0;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 14px;
+            height: 14px;
+            opacity: 0.6;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 6px 12px 6px 35px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #047cc4;
+            box-shadow: 0 0 0 2px rgba(4, 124, 196, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: #999;
+            font-size: 13px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 5px;
+            color: #721c24;
+            margin-top: 5px;
+        }
+
+        .content-wrapper {
+            padding: 0 20px;
+        }
     </style>
 </head>
 <body>
     <div class="masterlist-container">
-        <div class="header-section">
-            <div class="header-top">
-                <a href="{{ url_for('engineering_interface') }}" class="back-button">Back</a>
-                <h2>Item Masterlist</h2>
+        <a href="{{ url_for('engineering_interface') }}" class="back-button">Back</a>
+        
+        <div class="header-top">
+            <h2>Item Masterlist</h2>
+        </div>
+
+        <div id="message-container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+
+        <div class="search-wrapper">
+            <div class="search-container">
+                <img src="{{ url_for('static', filename='img/search.png') }}" alt="Search" class="search-icon">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search...">
             </div>
-            <div id="message-container">
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category }}">{{ message }}</div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
-            </div>
+        </div>
+
+        <div id="noResults" class="no-results" style="display: none;">
+            Item does not exist
         </div>
 
         <div class="table-container">
@@ -419,6 +463,40 @@
                 // Submit the form
                 deleteForm.submit();
             }
+        });
+
+        // Add search functionality
+        const searchInput = document.getElementById('searchInput');
+        const tableRows = document.querySelectorAll('tbody tr[data-main-row="true"]');
+        const noResults = document.getElementById('noResults');
+
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            let hasResults = false;
+
+            tableRows.forEach(row => {
+                const itemName = row.children[2].textContent.toLowerCase();
+                
+                // Get all associated rows for this item
+                let currentRow = row;
+                const associatedRows = [currentRow];
+                while (currentRow.nextElementSibling && !currentRow.nextElementSibling.hasAttribute('data-main-row')) {
+                    currentRow = currentRow.nextElementSibling;
+                    associatedRows.push(currentRow);
+                }
+
+                // Only check item name
+                if (itemName.includes(searchTerm)) {
+                    // Show all associated rows
+                    associatedRows.forEach(r => r.classList.remove('hidden'));
+                    hasResults = true;
+                } else {
+                    // Hide all associated rows
+                    associatedRows.forEach(r => r.classList.add('hidden'));
+                }
+            });
+
+            noResults.style.display = hasResults ? 'none' : 'block';
         });
     </script>
 </body>

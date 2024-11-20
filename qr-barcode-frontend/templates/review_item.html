@@ -46,12 +46,25 @@
         }
 
         .back-button {
-            padding: 10px 30px;
-            font-size: 16px;
+            display: inline-block;
+            padding: 8px 16px;
             background-color: #f0f0f0;
             border: 1px solid #ccc;
             border-radius: 4px;
+            color: #333;
+            text-decoration: none;
+            font-size: 14px;
             cursor: pointer;
+            transition: all 0.3s ease;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .back-button:hover {
+            background-color: #047cc4 !important;
+            color: white !important;
+            border-color: #047cc4 !important;
         }
 
         .register-button {
@@ -65,10 +78,6 @@
 
         .register-button:hover {
             background-color: #888;
-        }
-
-        .back-button:hover {
-            background-color: #e0e0e0;
         }
 
         .engineer-container {

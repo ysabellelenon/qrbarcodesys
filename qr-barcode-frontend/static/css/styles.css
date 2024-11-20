@@ -409,3 +409,87 @@ button:hover:not(.file-button),
     min-height: 600px;
     max-height: 800px;
 }
+
+/* Add search functionality styles */
+.search-container {
+    margin: 20px 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.search-input {
+    width: 60%;
+    padding: 10px 15px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #047cc4;
+}
+
+.no-results {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+    font-style: italic;
+    display: none;
+}
+
+/* Make sure table rows are visible/hidden smoothly */
+table tbody tr {
+    transition: opacity 0.3s ease;
+}
+
+table tbody tr.hidden {
+    display: none;
+}
+
+.header-top {
+    width: 100%;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 0 20px;
+}
+
+.search-container {
+    position: relative;
+    width: 200px;  /* Made slightly smaller */
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: 10px;
+    width: 14px;  /* Slightly smaller icon */
+    height: 14px;
+    opacity: 0.5;  /* Made slightly more subtle */
+}
+
+.search-input {
+    width: 100%;
+    padding: 6px 10px 6px 32px;  /* Adjusted padding */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 13px;  /* Slightly smaller font */
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #047cc4;
+    box-shadow: 0 0 0 2px rgba(4, 124, 196, 0.1);
+}
+
+.search-input::placeholder {
+    color: #999;
+    font-size: 13px;  /* Match input font size */
+}

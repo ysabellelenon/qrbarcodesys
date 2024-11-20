@@ -6,26 +6,6 @@
     <title>Assembly Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <style>
-        .back-button {
-            display: inline-block;
-            padding: 8px 16px;
-            background-color: #f0f0f0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            color: #333;
-            text-decoration: none;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin-bottom: 15px;
-            position: absolute;
-            top: 20px;
-            left: 20px;
-        }
-        .back-button:hover {
-            background-color: #e0e0e0;
-        }
-
         .registration-form {
             width: 100%;
             max-width: 800px;
@@ -100,8 +80,15 @@
 </head>
 <body>
     <div class="engineer-container">
-        <a href="{{ url_for('engineering_interface') }}" class="back-button">Back</a>
-        
+        <div class="file-menu">
+            <button class="file-button">File</button>
+            <div class="file-dropdown">
+                <form action="{{ url_for('logout') }}" method="post">
+                    <button type="submit" class="logout-button">Logout</button>
+                </form>
+            </div>
+        </div>
+
         <h2>Scan P.O and Item Name</h2>
 
         <form class="registration-form" action="{{ url_for('assembly_login') }}" method="post">

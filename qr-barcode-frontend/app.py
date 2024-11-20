@@ -62,9 +62,22 @@ def manage_accounts():
 def create_account():
     if request.method == 'POST':
         try:
+            # First check if username already exists
+            existing_user = User.query.filter_by(username=request.form['username']).first()
+            if existing_user:
+                flash('Username already exists. Please choose a different username.', 'error')
+                return redirect(url_for('new_account'))
+
+            # Check if all required fields are present
+            required_fields = ['username', 'password', 'first_name', 'surname', 'section', 'role']
+            for field in required_fields:
+                if not request.form.get(field):
+                    flash(f'{field.replace("_", " ").title()} is required.', 'error')
+                    return redirect(url_for('new_account'))
+
             new_user = User(
                 first_name=request.form['first_name'],
-                middle_name=request.form['middle_name'],
+                middle_name=request.form.get('middle_name', ''),
                 surname=request.form['surname'],
                 section=request.form['section'],
                 username=request.form['username'],

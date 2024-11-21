@@ -224,6 +224,7 @@
                             <th>Last Name</th>
                             <th>First Name</th>
                             <th>Line No.</th>
+                            <th>Section</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -237,6 +238,7 @@
                             <td>{{ user.surname }}</td>
                             <td>{{ user.first_name }}</td>
                             <td>{{ user.role }}</td>
+                            <td>{{ user.section }}</td>
                             <td>
                                 <a href="{{ url_for('edit_user', user_id=user.id) }}" class="action-button">Edit</a>
                             </td>

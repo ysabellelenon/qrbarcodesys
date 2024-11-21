@@ -121,7 +121,7 @@
         .lot-number-group {
             margin-bottom: 15px;
             display: flex;
-            align-items: flex-start;
+            align-items: center;
         }
 
         .lot-number-group label {
@@ -130,6 +130,7 @@
             font-weight: 500;
             color: #666;
             margin-right: 10px;
+            padding-top: 0;
         }
 
         .lot-number-value {
@@ -141,7 +142,7 @@
             border: 1px solid #ccc;
             border-radius: 4px;
             background-color: #f5f5f5;
-            height: 15px;
+            min-height: 15px;
             display: flex;
             align-items: center;
         }
@@ -176,6 +177,11 @@
                     <div id="lot_number" class="lot-number-value"></div>
                 </div>
 
+                <div class="lot-number-group">
+                    <label>QTY per Box:</label>
+                    <div id="qty_per_box" class="lot-number-value"></div>
+                </div>
+
                 <div class="button-container">
                     <button type="submit" class="submit-button">Submit</button>
                 </div>
@@ -185,16 +191,39 @@
 
     <script>
         function updateLotNumber(articleLabel) {
-            // Extract everything after the last space
-            const lastSpaceIndex = articleLabel.lastIndexOf(' ');
             const lotNumberElement = document.getElementById('lot_number');
+            const qtyPerBoxElement = document.getElementById('qty_per_box');
             
-            if (lastSpaceIndex !== -1) {
-                // Get everything after the last space
-                const lotNumber = articleLabel.substring(lastSpaceIndex + 1).trim();
-                lotNumberElement.textContent = lotNumber;
+            if (articleLabel.trim()) {
+                // Split the article label by spaces
+                const parts = articleLabel.split(' ');
+                
+                if (parts.length >= 2) {
+                    // Get lot number (last part)
+                    const lotNumber = parts[parts.length - 1];
+                    lotNumberElement.textContent = lotNumber;
+                    
+                    // Find the part that contains R-Pb and extract the quantity
+                    for (let part of parts) {
+                        if (part.includes('R-Pb')) {
+                            const nextPart = parts[parts.indexOf(part) + 1];
+                            if (nextPart) {
+                                // Extract numbers from the next part
+                                const qty = nextPart.match(/\d+/);
+                                if (qty) {
+                                    qtyPerBoxElement.textContent = qty[0];
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    lotNumberElement.textContent = '';
+                    qtyPerBoxElement.textContent = '';
+                }
             } else {
                 lotNumberElement.textContent = '';
+                qtyPerBoxElement.textContent = '';
             }
         }
     </script>

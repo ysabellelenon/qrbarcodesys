@@ -147,8 +147,8 @@ button {
 /* Add these new styles */
 .file-menu {
     position: absolute;
-    top: 10px;
-    left: 10px;
+    top: 20px;
+    left: 20px;
     z-index: 1000;
 }
 
@@ -183,7 +183,7 @@ button {
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    padding: 60px 40px 40px;
+    padding: 20px 40px 40px;
     width: auto;
     min-width: 600px;
     max-width: 90%;

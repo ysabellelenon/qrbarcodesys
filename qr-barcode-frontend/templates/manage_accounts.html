@@ -59,7 +59,7 @@
 
         .alert {
             padding: 10px;
-            margin-bottom: 15px;
+            margin: 10px 0;
             border-radius: 4px;
             text-align: center;
         }
@@ -191,15 +191,16 @@
             <h2>Registered Users</h2>
         </div>
 
-        <div id="message-container">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}">{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-        </div>
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
         <div class="search-wrapper">
             <div class="search-container">

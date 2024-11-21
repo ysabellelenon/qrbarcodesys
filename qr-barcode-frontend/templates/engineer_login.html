@@ -16,16 +16,6 @@
                 </form>
             </div>
         </div>
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              {% if message != "Login successful!" %}
-                <p class="{{ category }}">{{ message }}</p>
-              {% endif %}
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
         
         <div class="menu">
             <a href="{{ url_for('account_settings') }}" class="menu-item">Admin Account Settings</a>

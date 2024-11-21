@@ -130,13 +130,28 @@ def update_user(user_id):
 
 @app.route('/delete-users', methods=['POST'])
 def delete_users():
-    user_ids = request.form.getlist('user_ids[]')
-    for user_id in user_ids:
-        user = User.query.get(user_id)
-        if user:
-            db.session.delete(user)
-    db.session.commit()
-    return redirect(url_for('manage_existing_accounts'))
+    try:
+        user_ids = request.form.getlist('user_ids[]')
+        deleted_count = 0
+        for user_id in user_ids:
+            user = User.query.get(user_id)
+            if user:
+                db.session.delete(user)
+                deleted_count += 1
+        
+        db.session.commit()
+        
+        # Flash appropriate message based on number of users deleted
+        if deleted_count == 1:
+            flash('Account has been deleted successfully.', 'success')
+        elif deleted_count > 1:
+            flash(f'{deleted_count} accounts have been deleted successfully.', 'success')
+            
+    except Exception as e:
+        db.session.rollback()
+        flash('Error deleting account(s). Please try again.', 'error')
+        
+    return redirect(url_for('manage_accounts'))
 
 # Item management routes
 @app.route('/item-masterlist', methods=['GET', 'POST'])
@@ -379,6 +394,8 @@ def assembly_required(f):
 @app.route('/engineering')
 @admin_required
 def engineering_interface():
+    # Clear any existing flash messages and session data we don't need
+    session.pop('_flashes', None)  # This will clear all flash messages
     return render_template('engineer_login.html')
 
 # Protect assembly routes

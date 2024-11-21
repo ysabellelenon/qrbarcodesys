@@ -389,12 +389,45 @@ def assembly_login():
         session['item_name'] = request.form['item_name']
         session['po_number'] = request.form['po_number']
         session['total_qty'] = request.form['total_qty']
-        return redirect(url_for('scan_article'))
+        return redirect(url_for('scan_item'))
     return render_template('assembly_login.html')
 
-@app.route('/scan-article')
+@app.route('/scan-item', methods=['GET', 'POST'])
+def scan_item():
+    # Get all the stored data from session
+    item_name = session.get('item_name')
+    po_number = session.get('po_number')
+    lot_number = session.get('lot_number')
+    content = session.get('content')
+    qty_per_box = session.get('qty_per_box')
+    
+    if not all([item_name, po_number, lot_number]):
+        flash('Please complete the previous steps first', 'error')
+        return redirect(url_for('assembly_login'))
+        
+    return render_template('scan_item.html', 
+                         item_name=item_name, 
+                         po_number=po_number,
+                         lot_number=lot_number,
+                         content=content,
+                         qty_per_box=qty_per_box)
+
+@app.route('/scan-article', methods=['GET', 'POST'])
 def scan_article():
-    # Get the stored data from session
+    if request.method == 'POST':
+        # Store the article details in session
+        session['lot_number'] = request.form.get('lot_number')
+        session['content'] = request.form.get('article_label')
+        session['qty_per_box'] = request.form.get('qty_per_box')
+        
+        # Make sure we have all required data
+        if not all([session.get('lot_number'), session.get('content'), session.get('qty_per_box')]):
+            flash('Please fill in all required fields', 'error')
+            return redirect(url_for('scan_article'))
+            
+        return redirect(url_for('scan_item'))
+    
+    # Get the stored data from session for GET request
     item_name = session.get('item_name')
     po_number = session.get('po_number')
     

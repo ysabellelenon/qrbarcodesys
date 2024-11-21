@@ -172,6 +172,9 @@
                            oninput="updateLotNumber(this.value)">
                 </div>
 
+                <input type="hidden" name="lot_number" id="lot_number_input">
+                <input type="hidden" name="qty_per_box" id="qty_per_box_input">
+                
                 <div class="lot-number-group">
                     <label>Lot Number:</label>
                     <div id="lot_number" class="lot-number-value"></div>
@@ -183,7 +186,7 @@
                 </div>
 
                 <div class="button-container">
-                    <button type="submit" class="submit-button">Submit</button>
+                    <button type="submit" class="submit-button">Proceed</button>
                 </div>
             </div>
         </form>
@@ -193,6 +196,8 @@
         function updateLotNumber(articleLabel) {
             const lotNumberElement = document.getElementById('lot_number');
             const qtyPerBoxElement = document.getElementById('qty_per_box');
+            const lotNumberInput = document.getElementById('lot_number_input');
+            const qtyPerBoxInput = document.getElementById('qty_per_box_input');
             
             if (articleLabel.trim()) {
                 // Split the article label by spaces
@@ -202,6 +207,7 @@
                     // Get lot number (last part)
                     const lotNumber = parts[parts.length - 1];
                     lotNumberElement.textContent = lotNumber;
+                    lotNumberInput.value = lotNumber;
                     
                     // Find the part that contains R-Pb and extract the quantity
                     for (let part of parts) {
@@ -212,6 +218,7 @@
                                 const qty = nextPart.match(/\d+/);
                                 if (qty) {
                                     qtyPerBoxElement.textContent = qty[0];
+                                    qtyPerBoxInput.value = qty[0];
                                     break;
                                 }
                             }
@@ -220,10 +227,14 @@
                 } else {
                     lotNumberElement.textContent = '';
                     qtyPerBoxElement.textContent = '';
+                    lotNumberInput.value = '';
+                    qtyPerBoxInput.value = '';
                 }
             } else {
                 lotNumberElement.textContent = '';
                 qtyPerBoxElement.textContent = '';
+                lotNumberInput.value = '';
+                qtyPerBoxInput.value = '';
             }
         }
     </script>

@@ -24,18 +24,17 @@ body {
     padding: 40px;
     width: auto;
     min-width: 600px;
-    position: relative;
+    max-width: 800px;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
+    margin: auto;
 }
 
 /* Image container for logo */
 .image-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    flex: 0 0 auto;
     padding: 20px;
-    margin-right: 20px;
+    margin-right: 40px;
 }
 
 /* Logo styling */
@@ -47,9 +46,9 @@ body {
 
 /* Form container styling */
 .form-container {
-    padding: 30px;
-    width: 300px;
-    margin-left: 20px;
+    flex: 1;
+    padding: 20px;
+    max-width: 300px;
 }
 
 /* Form and button styling */
@@ -59,8 +58,9 @@ input, button, label {
 
 .form-group {
     display: flex;
+    flex-direction: row;
     align-items: center;
-    margin: 10px 0;
+    margin-bottom: 15px;
     width: 100%;
 }
 
@@ -571,4 +571,44 @@ body.form-page .engineer-container {
 .form-section,
 .registration-form {
     max-height: none;
+}
+
+/* Menu page specific styles */
+body:has(.engineer-container:not(.form-page)),
+body:has(.login-container) {
+    height: 100vh;
+    overflow: hidden;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Container styles for menu and login pages */
+.engineer-container:not(.form-page),
+.login-container {
+    height: auto;
+    max-height: 90vh;
+    overflow: visible;
+    display: flex;
+    margin: auto;
+    width: fit-content;
+}
+
+/* Menu styling */
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    margin-top: 20px;
+    overflow: visible;
+}
+
+/* Only enable scrolling if content exceeds viewport */
+@media (max-height: 600px) {
+    body:has(.engineer-container:not(.form-page)),
+    body:has(.login-container) {
+        overflow-y: auto;
+    }
 }

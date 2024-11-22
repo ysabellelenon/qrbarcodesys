@@ -183,10 +183,10 @@ button {
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    padding: 20px 40px 40px;
+    padding: 40px 60px;
     width: auto;
-    min-width: 600px;
-    max-width: 90%;
+    min-width: 1000px;
+    max-width: 1400px;
     position: relative;
     align-items: center;
     margin: 0 auto;
@@ -510,4 +510,36 @@ body.form-page .engineer-container {
     min-height: min-content;
     max-height: none;
     margin: 20px auto;
+}
+
+/* Update registration-form styles */
+.registration-form {
+    width: 100%;
+    max-width: 1200px;  /* Decreased from 1400px */
+    gap: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Update form-section styles */
+.form-section {
+    flex: 1;
+    min-width: 700px;  /* Decreased from 800px */
+    max-width: 900px;  /* Decreased from 1000px */
+    margin-bottom: 25px;
+    padding: 40px;
+}
+
+/* Update form inputs for better spacing */
+.form-group input,
+.form-group select {
+    padding: 10px;  /* Increased padding */
+    margin-top: 8px;  /* Added margin top */
+}
+
+/* Update button container spacing */
+.button-container {
+    margin-top: 20px;  /* Increased from 10px */
+    padding: 10px 0;   /* Added padding */
 }

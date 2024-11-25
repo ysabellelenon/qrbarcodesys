@@ -9,21 +9,56 @@ function log(...args) {
     }
 }
 
+const URLS_TO_CACHE = {
+    // Core pages
+    pages: [
+        '/login',
+        '/engineering',
+        '/assembly-login',
+        '/assembly',
+        '/offline.html'
+    ],
+    
+    // Static assets
+    assets: [
+        '/static/css/styles.css',
+        '/static/js/main.js',
+        '/static/img/jae-logo.jpg'
+    ],
+    
+    // Fonts
+    fonts: [
+        '/static/fonts/Poppins-Regular.ttf',
+        '/static/fonts/Poppins-SemiBold.ttf'
+    ],
+    
+    // Icons
+    icons: [
+        '/static/icons/icon-144x144.png',
+        '/static/icons/icon-192x192.png'
+    ],
+
+    // API endpoints (remove if not needed for initial cache)
+    api: []
+};
+
+// Add a function to validate URLs before caching
+function isValidUrl(url) {
+    try {
+        return url && url.startsWith('/');
+    } catch (e) {
+        return false;
+    }
+}
+
+// Filter valid URLs
 const urlsToCache = [
-    '/',
-    '/login',
-    '/static/css/styles.css',
-    '/static/manifest.json',
-    '/static/img/jae-logo.jpg',
-    '/static/fonts/Poppins-Regular.ttf',
-    '/static/fonts/Poppins-SemiBold.ttf',
-    '/static/icons/icon-48x48.png',
-    '/static/icons/icon-72x72.png',
-    '/static/icons/icon-96x96.png',
-    '/static/icons/icon-144x144.png',
-    '/static/icons/icon-192x192.png',
-    '/static/icons/icon-512x512.png'
-];
+    ...URLS_TO_CACHE.pages,
+    ...URLS_TO_CACHE.assets,
+    ...URLS_TO_CACHE.fonts,
+    ...URLS_TO_CACHE.icons,
+    ...URLS_TO_CACHE.api
+].filter(isValidUrl);
 
 // Pre-cache resources during installation
 self.addEventListener('install', event => {
@@ -33,12 +68,20 @@ self.addEventListener('install', event => {
         caches.open(CACHE_NAME)
             .then(cache => {
                 log('Pre-caching resources...');
-                return cache.addAll(urlsToCache)
-                    .then(() => self.skipWaiting())
-                    .catch(error => {
-                        log('Pre-cache failed:', error);
-                        throw error;
-                    });
+                // Cache each URL individually to handle failures gracefully
+                return Promise.allSettled(
+                    urlsToCache.map(url => 
+                        cache.add(url)
+                            .catch(error => {
+                                log(`Failed to cache: ${url}`, error);
+                                // Continue with installation even if some resources fail to cache
+                                return Promise.resolve();
+                            })
+                    )
+                ).then(() => {
+                    log('Pre-cache completed (some resources might have failed)');
+                    return self.skipWaiting();
+                });
             })
     );
 });
@@ -64,17 +107,79 @@ self.addEventListener('activate', event => {
     );
 });
 
-// Network first, falling back to cache strategy
+// Cache strategies
+const CACHE_STRATEGIES = {
+    // Network first, fall back to cache
+    NETWORK_FIRST: async (request) => {
+        try {
+            const response = await fetch(request);
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(request, response.clone());
+            return response;
+        } catch (error) {
+            const cachedResponse = await caches.match(request);
+            return cachedResponse || caches.match('/offline.html');
+        }
+    },
+
+    // Cache first, fall back to network
+    CACHE_FIRST: async (request) => {
+        const cachedResponse = await caches.match(request);
+        if (cachedResponse) return cachedResponse;
+        
+        try {
+            const response = await fetch(request);
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(request, response.clone());
+            return response;
+        } catch (error) {
+            return new Response('Resource not available offline');
+        }
+    },
+
+    // Stale while revalidate
+    STALE_WHILE_REVALIDATE: async (request) => {
+        const cachedResponse = await caches.match(request);
+        
+        const fetchPromise = fetch(request).then(async (response) => {
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(request, response.clone());
+            return response;
+        });
+
+        return cachedResponse || fetchPromise;
+    }
+};
+
+// Updated fetch event handler
 self.addEventListener('fetch', event => {
-    log('Fetch event for:', event.request.url);
-    
+    const url = new URL(event.request.url);
+
     // Don't cache POST requests
     if (event.request.method === 'POST') {
+        // Special handling for logout
+        if (event.request.url.includes('/logout')) {
+            event.respondWith(
+                fetch(event.request.clone())
+                    .catch(err => {
+                        log('Logout request failed - requires internet connection');
+                        return new Response(JSON.stringify({
+                            error: 'Logout requires an internet connection for security purposes.',
+                            requiresOnline: true
+                        }), {
+                            status: 503,
+                            headers: { 'Content-Type': 'application/json' }
+                        });
+                    })
+            );
+            return;
+        }
+        
+        // Other POST requests handling...
         event.respondWith(
             fetch(event.request.clone())
                 .catch(err => {
                     log('POST request failed, falling back to offline handling');
-                    // Handle offline POST requests
                     return new Response(JSON.stringify({
                         error: 'You are offline. The action will be queued for later.',
                         offline: true
@@ -86,46 +191,20 @@ self.addEventListener('fetch', event => {
         return;
     }
 
-    // Handle GET requests with cache strategy
-    event.respondWith(
-        fetch(event.request.clone())
-            .then(response => {
-                // Check if we received a valid response
-                if (!response || response.status !== 200 || response.type !== 'basic') {
-                    return response;
-                }
-
-                // Clone the response
-                const responseToCache = response.clone();
-
-                // Cache the response for future use
-                caches.open(CACHE_NAME)
-                    .then(cache => {
-                        cache.put(event.request, responseToCache);
-                        log('Updated cache for:', event.request.url);
-                    });
-
-                return response;
-            })
-            .catch(err => {
-                log('Fetch failed, falling back to cache:', err);
-                return caches.match(event.request)
-                    .then(cachedResponse => {
-                        if (cachedResponse) {
-                            log('Serving from cache:', event.request.url);
-                            return cachedResponse;
-                        }
-
-                        // If the request is for a page, return the offline page
-                        if (event.request.mode === 'navigate') {
-                            return caches.match('/offline.html');
-                        }
-
-                        // Return a simple offline response for other resources
-                        return new Response('Offline content not available');
-                    });
-            })
-    );
+    // Choose caching strategy based on URL pattern
+    if (url.pathname.startsWith('/api/')) {
+        // API requests: Network first
+        event.respondWith(CACHE_STRATEGIES.NETWORK_FIRST(event.request));
+    } else if (url.pathname.startsWith('/static/')) {
+        // Static assets: Cache first
+        event.respondWith(CACHE_STRATEGIES.CACHE_FIRST(event.request));
+    } else if (URLS_TO_CACHE.pages.includes(url.pathname)) {
+        // HTML pages: Network first
+        event.respondWith(CACHE_STRATEGIES.NETWORK_FIRST(event.request));
+    } else {
+        // Everything else: Stale while revalidate
+        event.respondWith(CACHE_STRATEGIES.STALE_WHILE_REVALIDATE(event.request));
+    }
 });
 
 // Handle messages from clients
@@ -133,4 +212,44 @@ self.addEventListener('message', event => {
     if (event.data === 'skipWaiting') {
         self.skipWaiting();
     }
+});
+
+// Add periodic cache update
+self.addEventListener('sync', event => {
+    if (event.tag === 'update-cache') {
+        event.waitUntil(updateCache());
+    }
+});
+
+async function updateCache() {
+    const cache = await caches.open(CACHE_NAME);
+    
+    // Update static resources
+    for (const url of urlsToCache) {
+        try {
+            const response = await fetch(url);
+            await cache.put(url, response);
+        } catch (error) {
+            console.error(`Failed to update cache for ${url}:`, error);
+        }
+    }
+}
+
+// Add cache version management
+self.addEventListener('activate', event => {
+    event.waitUntil(
+        Promise.all([
+            self.clients.claim(),
+            // Clean up old cache versions
+            caches.keys().then(cacheNames => {
+                return Promise.all(
+                    cacheNames.map(cacheName => {
+                        if (cacheName.startsWith('qr-barcode-cache-') && cacheName !== CACHE_NAME) {
+                            return caches.delete(cacheName);
+                        }
+                    })
+                );
+            })
+        ])
+    );
 }); 

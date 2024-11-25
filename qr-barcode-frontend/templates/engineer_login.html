@@ -22,5 +22,38 @@
             <a href="{{ url_for('item_masterlist') }}" class="menu-item">Item Masterlist</a>
         </div>
     </div>
+    <script>
+        document.getElementById('logoutBtn')?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            if (!navigator.onLine) {
+                alert('Logout requires an internet connection for security purposes. Please try again when online.');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+        
+                if (response.ok) {
+                    window.location.href = '/login';
+                } else {
+                    const result = await response.json();
+                    if (result.requiresOnline) {
+                        alert('Logout requires an internet connection for security purposes. Please try again when online.');
+                    } else {
+                        alert('Logout failed. Please try again.');
+                    }
+                }
+            } catch (error) {
+                console.error('Error during logout:', error);
+                alert('Logout requires an internet connection for security purposes. Please try again when online.');
+            }
+        });
+    </script>
 </body>
 </html>

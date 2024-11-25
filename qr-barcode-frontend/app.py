@@ -31,9 +31,19 @@ def home():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        user = User.query.filter_by(username=request.form['username']).first()
+        # Check if the request is JSON
+        if request.is_json:
+            data = request.get_json()
+            username = data.get('username')
+            password = data.get('password')
+        else:
+            # Handle form data
+            username = request.form.get('username')
+            password = request.form.get('password')
         
-        if user and check_password_hash(user.password, request.form['password']):
+        user = User.query.filter_by(username=username).first()
+        
+        if user and check_password_hash(user.password, password):
             session['user_role'] = user.role
             
             # Set redirect based on role
@@ -52,6 +62,10 @@ def login():
                 'role': user.role,
                 'token': generate_session_token()
             }), 200
+        else:
+            return jsonify({
+                'error': 'Invalid username or password'
+            }), 401
 
     return render_template('login.html')
 

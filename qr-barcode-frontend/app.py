@@ -544,7 +544,7 @@ def generate_session_token():
 
 @app.route('/sw.js')
 def service_worker():
-    response = make_response(send_from_directory('static', 'sw.js'))
+    response = make_response(send_file('sw.js'))
     response.headers['Content-Type'] = 'application/javascript'
     response.headers['Service-Worker-Allowed'] = '/'
     return response

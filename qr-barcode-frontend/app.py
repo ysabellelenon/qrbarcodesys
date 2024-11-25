@@ -511,6 +511,13 @@ def create_user_command(username, password, first_name, surname, section, role, 
 # Register the command with Flask
 app.cli.add_command(create_user_command)
 
+# Add MIME type for manifest.json
+@app.after_request
+def add_header(response):
+    if 'manifest.json' in request.path:
+        response.headers['Content-Type'] = 'application/manifest+json'
+    return response
+
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
 

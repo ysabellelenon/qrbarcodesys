@@ -4,8 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#047cc4">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192x192.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'Poppins';
+            font-style: normal;
+            font-weight: 400;
+            src: url("{{ url_for('static', filename='fonts/Poppins-Regular.woff2') }}") format('woff2'),
+                 url("{{ url_for('static', filename='fonts/Poppins-Regular.ttf') }}") format('truetype');
+        }
+        
+        @font-face {
+            font-family: 'Poppins';
+            font-style: normal;
+            font-weight: 600;
+            src: url("{{ url_for('static', filename='fonts/Poppins-SemiBold.woff2') }}") format('woff2'),
+                 url("{{ url_for('static', filename='fonts/Poppins-SemiBold.ttf') }}") format('truetype');
+        }
+    </style>
 </head>
 <body>
     <div class="login-container">
@@ -131,5 +150,95 @@
         }
 
     </style>
+
+    <!-- Install App Modal -->
+    <div id="installModal" class="install-modal">
+        <div class="install-modal-content">
+            <div class="install-text">
+                <h3>Install QR Barcode System</h3>
+                <p>Install this app on your device for quick and easy access.</p>
+            </div>
+            <div class="install-buttons">
+                <button id="installLater" class="install-btn install-later">Later</button>
+                <button id="installNow" class="install-btn install-now">Install</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PWA Install Script -->
+    <script>
+        let deferredPrompt;
+        const installModal = document.getElementById('installModal');
+        const installButton = document.getElementById('installNow');
+        const laterButton = document.getElementById('installLater');
+
+        // Check if the app is already installed
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            // App is installed, don't show the install prompt
+            installModal.style.display = 'none';
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent Chrome 67 and earlier from automatically showing the prompt
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            deferredPrompt = e;
+            
+            // Show the install modal after a short delay
+            setTimeout(() => {
+                installModal.classList.add('show');
+            }, 2000);
+        });
+
+        installButton.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                // Show the install prompt
+                deferredPrompt.prompt();
+                
+                // Wait for the user to respond to the prompt
+                const { outcome } = await deferredPrompt.userChoice;
+                
+                // Clear the deferredPrompt variable
+                deferredPrompt = null;
+                
+                // Hide the install modal
+                installModal.classList.remove('show');
+
+                // Optionally, log the outcome
+                console.log(`User response to the install prompt: ${outcome}`);
+            }
+        });
+
+        laterButton.addEventListener('click', () => {
+            // Hide the install modal
+            installModal.classList.remove('show');
+            
+            // Optionally, set a flag in localStorage to not show the prompt again for some time
+            localStorage.setItem('installPromptDismissed', Date.now());
+        });
+
+        // Check if we should show the install prompt based on previous dismissal
+        function shouldShowInstallPrompt() {
+            const dismissedTime = localStorage.getItem('installPromptDismissed');
+            if (!dismissedTime) return true;
+            
+            // Show the prompt again after 3 days
+            const threeDays = 3 * 24 * 60 * 60 * 1000;
+            return Date.now() - parseInt(dismissedTime) > threeDays;
+        }
+
+        // Service Worker registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>

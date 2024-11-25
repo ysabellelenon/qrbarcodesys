@@ -612,3 +612,90 @@ body:has(.login-container) {
         overflow-y: auto;
     }
 }
+
+/* Install App Modal Styles */
+.install-modal {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 16px 24px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-width: 90%;
+    width: 400px;
+}
+
+.install-modal.show {
+    display: block;
+    animation: slideUp 0.3s ease-out;
+}
+
+.install-modal-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.install-text {
+    flex: 1;
+}
+
+.install-text h3 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    color: #333;
+}
+
+.install-text p {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.install-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.install-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.install-now {
+    background-color: #047cc4;
+    color: white;
+}
+
+.install-now:hover {
+    background-color: #036aa8;
+}
+
+.install-later {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.install-later:hover {
+    background-color: #e0e0e0;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translate(-50%, 100%);
+        opacity: 0;
+    }
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}

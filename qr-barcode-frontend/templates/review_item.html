@@ -1,154 +1,90 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Review Item Details</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <style>
-        .review-container {
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-        }
+{% extends "base.html" %}
 
-        .review-section {
-            margin-bottom: 20px;
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-        }
+{% block title %}Review Item Details{% endblock %}
 
-        .review-item {
-            display: flex;
-            margin-bottom: 15px;
-            align-items: center;
-        }
+{% block styles %}
+<style>
+    .review-container {
+        max-width: 800px;
+        margin: 40px auto;
+    }
 
-        .review-label {
-            width: 200px;
-            font-weight: 500;
-            color: #666;
-        }
+    .review-label {
+        color: #666;
+        font-weight: 500;
+    }
 
-        .review-value {
-            flex: 1;
-            color: #333;
-        }
+    .review-value {
+        color: #333;
+    }
+</style>
+{% endblock %}
 
-        .button-container {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-top: 30px;
-        }
+{% block content %}
+<div class="container">
+    <!-- Back Button -->
+    <button type="button" class="btn btn-outline-secondary position-absolute top-4 start-4" onclick="history.back()">
+        <i class="bi bi-arrow-left"></i> Back
+    </button>
 
-        .back-button {
-            display: inline-block;
-            padding: 8px 16px;
-            background-color: #f0f0f0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            color: #333;
-            text-decoration: none;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: absolute;
-            top: 20px;
-            left: 20px;
-        }
-
-        .back-button:hover {
-            background-color: #047cc4 !important;
-            color: white !important;
-            border-color: #047cc4 !important;
-        }
-
-        .register-button {
-            padding: 10px 30px;
-            font-size: 16px;
-            background-color: #a5a5a5;
-            border: 1px solid black;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .register-button:hover {
-            background-color: #888;
-        }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #333;
-        }
-
-        h3 {
-            margin-bottom: 20px;
-            color: #444;
-        }
-    </style>
-</head>
-<body class="form-page">
-    <div class="engineer-container">
-        <div class="review-container">
-            <h2>Review Item Details</h2>
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h2 class="text-center mb-4">Review Item Details</h2>
             
-            <div class="review-section">
-                <h3>Item Information</h3>
-                <div class="review-item">
-                    <div class="review-label">Item Name:</div>
-                    <div class="review-value">{{ item.name }}</div>
+            <!-- Item Information Section -->
+            <div class="mb-4">
+                <h3 class="mb-3">Item Information</h3>
+                <div class="row g-3 mb-2">
+                    <div class="col-md-4 review-label">Item Name:</div>
+                    <div class="col-md-8 review-value">{{ item.name }}</div>
                 </div>
-                <div class="review-item">
-                    <div class="review-label">Rev No.:</div>
-                    <div class="review-value">{{ item.revision }}</div>
+                <div class="row g-3 mb-2">
+                    <div class="col-md-4 review-label">Rev No.:</div>
+                    <div class="col-md-8 review-value">{{ item.revision }}</div>
                 </div>
-                <div class="review-item">
-                    <div class="review-label">No. of QR Code:</div>
-                    <div class="review-value">{{ item.code_count }}</div>
+                <div class="row g-3 mb-2">
+                    <div class="col-md-4 review-label">No. of QR Code:</div>
+                    <div class="col-md-8 review-value">{{ item.code_count }}</div>
                 </div>
             </div>
 
-            <!-- Add new section for individual code details -->
+            <!-- Individual Code Details -->
             {% set categories = item.category.split(',') %}
             {% set label_contents = item.label_content.split(',') %}
             {% for i in range(item.code_count) %}
-            <div class="review-section">
-                <h3>Code {{ i + 1 }} Details</h3>
-                <div class="review-item">
-                    <div class="review-label">Category:</div>
-                    <div class="review-value">{{ categories[i]|trim }}</div>
+            <div class="mb-4">
+                <h3 class="mb-3">Code {{ i + 1 }} Details</h3>
+                <div class="row g-3 mb-2">
+                    <div class="col-md-4 review-label">Category:</div>
+                    <div class="col-md-8 review-value">{{ categories[i]|trim }}</div>
                 </div>
-                <div class="review-item">
-                    <div class="review-label">Label Content:</div>
-                    <div class="review-value">{{ label_contents[i]|trim }}</div>
+                <div class="row g-3 mb-2">
+                    <div class="col-md-4 review-label">Label Content:</div>
+                    <div class="col-md-8 review-value">{{ label_contents[i]|trim }}</div>
                 </div>
             </div>
             {% endfor %}
 
-            <!-- If there are sublot configurations, show them -->
+            <!-- Sub-Lot Configurations Section -->
             {% if enabled_sublots is defined %}
-                <div class="review-section">
-                    <h3>Sub-Lot Configurations</h3>
-                    {% for index, enabled in enabled_sublots.items() %}
-                        {% if enabled %}
-                            <div class="review-item">
-                                <div class="review-label">Code {{ index + 1 }} Sub-Lot:</div>
-                                <div class="review-value">
-                                    Enabled ({{ serial_numbers.get(index, 'N/A') }} serial numbers)
-                                </div>
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                </div>
+            <div class="mb-4">
+                <h3 class="mb-3">Sub-Lot Configurations</h3>
+                {% for index, enabled in enabled_sublots.items() %}
+                    {% if enabled %}
+                    <div class="row g-3 mb-2">
+                        <div class="col-md-4 review-label">Code {{ index + 1 }} Sub-Lot:</div>
+                        <div class="col-md-8 review-value">
+                            Enabled ({{ serial_numbers.get(index, 'N/A') }} serial numbers)
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
             {% endif %}
 
+            <!-- Form for Registration -->
             <form action="{{ url_for('item_masterlist') }}" method="post">
-                <!-- Hidden inputs to send all data -->
+                <!-- Hidden inputs -->
                 <input type="hidden" name="name" value="{{ item.name }}">
                 <input type="hidden" name="revision" value="{{ item.revision }}">
                 <input type="hidden" name="code_count" value="{{ item.code_count }}">
@@ -158,13 +94,14 @@
                     <input type="hidden" name="label_content_{{ i }}" value="{{ item['label_content_' ~ i] }}">
                 {% endfor %}
 
-                <div class="button-container">
-                    <button type="button" class="back-button" onclick="history.back()">Back</button>
-                    <button type="submit" class="register-button">Register</button>
+                <!-- Submit Button -->
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary px-4 py-2">
+                        Register
+                    </button>
                 </div>
             </form>
         </div>
     </div>
-</body>
-</html> 
-</html> 
+</div>
+{% endblock %} 

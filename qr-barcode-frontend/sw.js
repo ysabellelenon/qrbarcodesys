@@ -14,6 +14,7 @@ const URLS_TO_CACHE = {
     pages: [
         '/login',
         '/engineering',
+        '/item-masterlist',
         '/assembly-login',
         '/assembly',
         '/offline.html'

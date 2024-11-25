@@ -1,217 +1,108 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Revise Item</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <style>
-        .back-button {
-            display: inline-block;
-            padding: 8px 16px;
-            background-color: #f0f0f0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            color: #333;
-            text-decoration: none;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: absolute;
-            top: 20px;
-            left: 20px;
-        }
+{% extends "base.html" %}
 
-        .back-button:hover {
-            background-color: #047cc4 !important;
-            color: white !important;
-            border-color: #047cc4 !important;
-        }
+{% block title %}Revise Item{% endblock %}
 
-        .registration-form {
-            width: 100%;
-            max-width: 800px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-            margin-top: 20px;
-        }
+{% block content %}
+<div class="container py-4">
+    <!-- Back Button -->
+    <button type="button" class="btn btn-outline-secondary position-absolute top-4 start-4" onclick="history.back()">
+        <i class="bi bi-arrow-left"></i> Back
+    </button>
 
-        .form-section {
-            flex: 1;
-            min-width: 300px;
-            max-width: 380px;
-            margin-bottom: 20px;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #fff;
-        }
+    <h2 class="text-center mb-4">Revise Item</h2>
 
-        .form-section h3 {
-            margin-top: 0;
-            margin-bottom: 20px;
-            color: #333;
-            font-size: 1.1em;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            text-align: left;
-            font-weight: 500;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-            box-sizing: border-box;
-        }
-
-        .button-container {
-            width: 100%;
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        .update-button {
-            padding: 10px 30px;
-            font-size: 16px;
-            background-color: #a5a5a5;
-            border: 1px solid black;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .update-button:hover {
-            background-color: #888;
-        }
-
-        select {
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            background-size: 1em;
-        }
-
-        h2 {
-            margin-bottom: 40px;
-            color: #333;
-            text-align: center;
-        }
-    </style>
-</head>
-<body class="form-page">
-    <div class="engineer-container">
-        <a href="javascript:history.back()" class="back-button">Back</a>
-        
-        <h2>Revise Item</h2>
-
-        <form class="registration-form" action="{{ url_for('revise_item_page', item_id=item.id) }}" method="post">
-            <div class="form-section">
-                <h3>Item Details</h3>
-                <div class="form-group">
-                    <label for="item_name">Item Name</label>
-                    <input type="text" id="item_name" name="name" value="{{ item.name }}" required>
+    <form action="{{ url_for('revise_item_page', item_id=item.id) }}" method="post">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h3 class="card-title mb-4">Item Details</h3>
+                
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label for="item_name" class="form-label">Item Name</label>
+                        <input type="text" class="form-control" id="item_name" name="name" value="{{ item.name }}" required>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="revision">Rev No.</label>
-                    <select id="revision" name="revision" required>
-                        <option value="">Select Revision Number</option>
-                        {% for i in range(1, 11) %}
-                            <option value="{{ i }}" {% if item.revision == i %}selected{% endif %}>{{ i }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="code_count">No. of Code</label>
-                    <select id="code_count" name="code_count" required onchange="updateFields()">
-                        <option value="">Select Number of Codes</option>
-                        {% for i in range(1, 21) %}
-                            <option value="{{ i }}" {% if item.code_count == i %}selected{% endif %}>{{ i }}</option>
-                        {% endfor %}
-                    </select>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="revision" class="form-label">Rev No.</label>
+                        <select class="form-select" id="revision" name="revision" required>
+                            <option value="">Select Revision Number</option>
+                            {% for i in range(1, 11) %}
+                                <option value="{{ i }}" {% if item.revision == i %}selected{% endif %}>{{ i }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="code_count" class="form-label">No. of Code</label>
+                        <select class="form-select" id="code_count" name="code_count" required onchange="updateFields()">
+                            <option value="">Select Number of Codes</option>
+                            {% for i in range(1, 21) %}
+                                <option value="{{ i }}" {% if item.code_count == i %}selected{% endif %}>{{ i }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
 
                 <div id="dynamic-fields">
                     <!-- Dynamic fields will be added here -->
                 </div>
             </div>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary px-4 py-2">Update</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function updateFields() {
+        const codeCount = document.getElementById('code_count').value;
+        const dynamicFields = document.getElementById('dynamic-fields');
+        dynamicFields.innerHTML = '';
+
+        const existingCategories = '{{ item.category }}'.split(',');
+        const existingLabelContents = '{{ item.label_content }}'.split(',');
+
+        for (let i = 1; i <= codeCount; i++) {
+            const codeSection = document.createElement('div');
+            codeSection.className = 'card shadow-sm mb-4 mt-4';
             
-            <div class="button-container">
-                <button type="submit" class="update-button">Update</button>
-            </div>
-        </form>
-    </div>
+            codeSection.innerHTML = `
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Code ${i}</h5>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label d-block">Category ${i}</label>
+                            <div class="btn-group" role="group" aria-label="Category options">
+                                <input type="radio" class="btn-check" name="category_${i}" id="counting_${i}" value="Counting" 
+                                    ${(i <= existingCategories.length && existingCategories[i-1].trim() === 'Counting') ? 'checked' : ''} required>
+                                <label class="btn btn-outline-primary" for="counting_${i}">Counting</label>
 
-    <script>
-        function updateFields() {
-            const codeCount = document.getElementById('code_count').value;
-            const dynamicFields = document.getElementById('dynamic-fields');
-            dynamicFields.innerHTML = ''; // Clear previous fields
-
-            // Get existing categories and label contents
-            const existingCategories = '{{ item.category }}'.split(',');
-            const existingLabelContents = '{{ item.label_content }}'.split(',');
-
-            for (let i = 1; i <= codeCount; i++) {
-                // Create a container for each code entry
-                const codeContainer = document.createElement('div');
-                codeContainer.className = 'form-section';
-                codeContainer.style.marginTop = '20px';
-                
-                // Add a header for each code
-                const header = document.createElement('h3');
-                header.textContent = `Code ${i}`;
-                header.style.marginBottom = '15px';
-                codeContainer.appendChild(header);
-
-                // Create category field
-                const categoryDiv = document.createElement('div');
-                categoryDiv.className = 'form-group';
-                categoryDiv.innerHTML = `
-                    <label for="category_${i}">Category ${i}</label>
-                    <select id="category_${i}" name="category_${i}" required>
-                        <option value="">Select Category</option>
-                        <option value="Counting" ${(i <= existingCategories.length && existingCategories[i-1].trim() === 'Counting') ? 'selected' : ''}>Counting</option>
-                        <option value="Non-Counting" ${(i <= existingCategories.length && existingCategories[i-1].trim() === 'Non-Counting') ? 'selected' : ''}>Non-Counting</option>
-                    </select>
-                `;
-                codeContainer.appendChild(categoryDiv);
-
-                // Create label content field
-                const labelDiv = document.createElement('div');
-                labelDiv.className = 'form-group';
-                labelDiv.innerHTML = `
-                    <label for="label_content_${i}">Label Content ${i}</label>
-                    <input type="text" id="label_content_${i}" name="label_content_${i}" 
-                           value="${i <= existingLabelContents.length ? existingLabelContents[i-1].trim() : ''}" required>
-                `;
-                codeContainer.appendChild(labelDiv);
-
-                // Add the container to dynamic fields
-                dynamicFields.appendChild(codeContainer);
-            }
+                                <input type="radio" class="btn-check" name="category_${i}" id="noncounting_${i}" value="Non-Counting"
+                                    ${(i <= existingCategories.length && existingCategories[i-1].trim() === 'Non-Counting') ? 'checked' : ''} required>
+                                <label class="btn btn-outline-primary" for="noncounting_${i}">Non-Counting</label>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <label for="label_content_${i}" class="form-label">Label Content ${i}</label>
+                            <input type="text" class="form-control" id="label_content_${i}" name="label_content_${i}" 
+                                   value="${i <= existingLabelContents.length ? existingLabelContents[i-1].trim() : ''}" required>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            dynamicFields.appendChild(codeSection);
         }
+    }
 
-        // Call updateFields on page load to initialize the fields
-        window.onload = function() {
-            updateFields();
-        }
-    </script>
-</body>
-</html> 
+    // Initialize fields on page load
+    window.onload = function() {
+        updateFields();
+    }
+</script>
+{% endblock %} 

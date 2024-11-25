@@ -1,503 +1,200 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Item Masterlist</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <style>
-        .masterlist-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 30px;
-            height: 90vh;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
+{% extends "base.html" %}
 
-        .back-button {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            padding: 8px 16px;
-            background-color: #f0f0f0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            color: #333;
-            text-decoration: none;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
+{% block title %}Item Masterlist{% endblock %}
 
-        .back-button:hover {
-            background-color: #047cc4 !important;
-            color: white !important;
-            border-color: #047cc4 !important;
-        }
+{% block content %}
+<div class="container py-4">
+     <!-- Back Button -->
+     <button type="button" class="btn btn-outline-secondary position-absolute top-4 start-4" onclick="history.back()">
+        <i class="bi bi-arrow-left"></i> Back
+    </button>
+    <h2 class="text-center mb-4">Item Masterlist</h2>
 
-        .action-buttons {
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            justify-content: center;
-            align-items: center;
-            position: static;
-            padding: 0;
-        }
 
-        .action-button {
-            padding: 8px 16px;
-            background-color: #a5a5a5;
-            border: 1px solid black;
-            border-radius: 4px;
-            cursor: pointer;
-            color: black;
-            text-decoration: none;
-            min-width: 120px;
-            text-align: center;
-        }
-
-        .action-button:hover {
-            background-color: #888;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 0;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #f5f5f5;
-            font-weight: 600;
-        }
-
-        .header-top {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
-
-        h2 {
-            margin: 0 0 30px 0;
-            padding-bottom: 15px;
-            text-align: center;
-        }
-
-        h2::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 3px;
-            background-color: #047cc4;
-            border-radius: 2px;
-            margin-bottom: -15px;
-        }
-
-        #message-container {
-            position: static;
-            width: 100%;
-            margin-bottom: 10px;
-        }
-
-        .table-container {
-            flex: 1;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin: 15px 0;
-            padding: 0;
-        }
-
-        .footer-section {
-            position: sticky;
-            bottom: 0;
-            background-color: white;
-            z-index: 2;
-            padding: 20px 0;
-            margin-top: auto;
-        }
-
-        .action-buttons {
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            justify-content: center;
-            align-items: center;
-            position: static;
-            padding: 0;
-        }
-
-        h2 {
-            position: static;
-            margin: 0;
-            padding: 0;
-        }
-
-        #message-container {
-            position: static;
-        }
-
-        .alert {
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 4px;
-            text-align: center;
-        }
-
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .checkbox-column {
-            width: 40px;
-            text-align: center;
-        }
-
-        input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
-        }
-
-        .delete-button {
-            background-color: #ff6b6b;
-            color: white;
-            border: 1px solid #ff5252;
-        }
-
-        .delete-button:hover {
-            background-color: #ff5252;
-        }
-
-        tr[data-main-row="true"] {
-            border-top: 2px solid #ddd;
-        }
-
-        td {
-            vertical-align: middle;
-        }
-
-        td[rowspan] {
-            background-color: #f8f8f8;
-        }
-
-        .result-box {
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-weight: 500;
-            text-align: center;
-            display: inline-block;
-            min-width: 80px;
-        }
-
-        .result-good {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .result-bad {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            background-color: #f5f7fa;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
-
-        .search-wrapper {
-            width: 100%;
-            display: flex;
-            justify-content: flex-end;
-            margin: 10px 0;
-            padding: 0;
-        }
-
-        .search-container {
-            position: relative;
-            width: 250px;
-            margin: 0;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 14px;
-            height: 14px;
-            opacity: 0.6;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 6px 12px 6px 35px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            margin: 0;
-            line-height: 1.2;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #047cc4;
-            box-shadow: 0 0 0 2px rgba(4, 124, 196, 0.1);
-        }
-
-        .search-input::placeholder {
-            color: #999;
-            font-size: 13px;
-        }
-
-        .no-results {
-            text-align: center;
-            padding: 5px;
-            color: #721c24;
-            margin-top: 5px;
-        }
-
-        .content-wrapper {
-            padding: 0 20px;
-        }
-    </style>
-</head>
-<body>
-    <div class="masterlist-container">
-        <a href="{{ url_for('engineering_interface') }}" class="back-button">Back</a>
-        
-        <div class="header-top">
-            <h2>Item Masterlist</h2>
-        </div>
-
-        <div id="message-container">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}">{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-        </div>
-
-        <div class="search-wrapper">
-            <div class="search-container">
-                <img src="{{ url_for('static', filename='img/search.png') }}" alt="Search" class="search-icon">
-                <input type="text" id="searchInput" class="search-input" placeholder="Search...">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            
+            <!-- Search Bar -->
+            <div class="d-flex justify-content-end mb-3">
+                <div class="position-relative" style="width: 250px;">
+                    <i class="bi bi-search position-absolute top-50 start-3 translate-middle-y text-muted"></i>
+                    <input type="text" id="searchInput" class="form-control ps-5" placeholder="Search...">
+                </div>
             </div>
-        </div>
 
-        <div id="noResults" class="no-results" style="display: none;">
-            Item does not exist
-        </div>
+            <!-- No Results Message -->
+            <div id="noResults" class="alert alert-warning text-center" style="display: none;">
+                Item does not exist
+            </div>
 
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th class="checkbox-column">
-                            <input type="checkbox" id="selectAll">
-                        </th>
-                        <th>No.</th>
-                        <th>Item Name</th>
-                        <th>REV.</th>
-                        <th>Category</th>
-                        <th>Label Content</th>
-                        <th>Results</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in items %}
-                        {% set outer_loop = loop %}
-                        {% set categories = item.category.split(',') %}
-                        {% set label_contents = item.label_content.split(',') %}
-                        {% set first_label = label_contents[0]|trim %}
-                        {% for i in range(categories|length) %}
-                            <tr {% if i == 0 %}data-main-row="true"{% endif %}>
-                                {% if i == 0 %}
-                                    <td class="checkbox-column" rowspan="{{ categories|length }}">
-                                        <input type="checkbox" name="selected_items[]" value="{{ item.id }}">
-                                    </td>
-                                    <td rowspan="{{ categories|length }}">{{ outer_loop.index }}</td>
-                                    <td rowspan="{{ categories|length }}">{{ item.name }}</td>
-                                    <td rowspan="{{ categories|length }}">{{ item.revision }}</td>
-                                {% endif %}
-                                <td>{{ categories[i]|trim }}</td>
-                                <td>{{ label_contents[i]|trim }}</td>
-                                <td>
-                                    {% set current_category = categories[i]|trim %}
-                                    {% set current_label = label_contents[i]|trim %}
-                                    {% set is_good = true %}
-
-                                    {% if current_category == 'Non-Counting' %}
-                                        {% if current_label != first_label %}
-                                            {% set is_good = false %}
-                                        {% endif %}
-                                    {% elif current_category == 'Counting' and i > 0 %}
-                                        {% set current_last_four = current_label[-4:]|int if current_label[-4:].isdigit() else 0 %}
-                                        {% set first_last_four = first_label[-4:]|int if first_label[-4:].isdigit() else 0 %}
-                                        {% if current_last_four == first_last_four %}
-                                            {% set is_good = false %}
-                                        {% endif %}
+            <!-- Table Container -->
+            <div class="table-responsive">
+                <table class="table table-hoverx align-middle">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 40px;">
+                                <input type="checkbox" class="form-check-input" id="selectAll">
+                            </th>
+                            <th>No.</th>
+                            <th>Item Name</th>
+                            <th>REV.</th>
+                            <th>Category</th>
+                            <th>Label Content</th>
+                            <th>Results</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                            {% set outer_loop = loop %}
+                            {% set categories = item.category.split(',') %}
+                            {% set label_contents = item.label_content.split(',') %}
+                            {% set first_label = label_contents[0]|trim %}
+                            {% for i in range(categories|length) %}
+                                <tr {% if i == 0 %}data-main-row="true"{% endif %}>
+                                    {% if i == 0 %}
+                                        <td class="text-center align-middle" rowspan="{{ categories|length }}">
+                                            <input type="checkbox" class="form-check-input" name="selected_items[]" value="{{ item.id }}">
+                                        </td>
+                                        <td class="align-middle" rowspan="{{ categories|length }}">{{ outer_loop.index }}</td>
+                                        <td class="align-middle" rowspan="{{ categories|length }}">{{ item.name }}</td>
+                                        <td class="align-middle" rowspan="{{ categories|length }}">{{ item.revision }}</td>
                                     {% endif %}
-
-                                    <div class="result-box {% if is_good %}result-good{% else %}result-bad{% endif %}">
-                                        {% if is_good %}
-                                            GOOD
+                                    <td class="align-middle text-center">
+                                        {% if categories[i]|trim == 'Counting' %}
+                                            <span class="badge bg-primary">Counting</span>
                                         {% else %}
-                                            NO GOOD
+                                            <span class="badge bg-info">Non-Counting</span>
                                         {% endif %}
-                                    </div>
-                                </td>
-                                {% if i == 0 %}
-                                    <td rowspan="{{ categories|length }}">
-                                        <a href="{{ url_for('revise_item_page', item_id=item.id) }}" class="action-button">Revise</a>
                                     </td>
-                                {% endif %}
-                            </tr>
-                        {% endfor %}
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                                    <td class="align-middle">{{ label_contents[i]|trim }}</td>
+                                    <td class="align-middle text-center">
+                                        {% set current_category = categories[i]|trim %}
+                                        {% set current_label = label_contents[i]|trim %}
+                                        {% set is_good = true %}
 
-        <div class="footer-section">
-            <div class="action-buttons">
-                <a href="{{ url_for('register_item') }}" class="action-button">New Register</a>
-                <button id="deleteButton" class="action-button delete-button" style="display: none;">Delete</button>
+                                        {% if current_category == 'Non-Counting' %}
+                                            {% if current_label != first_label %}
+                                                {% set is_good = false %}
+                                            {% endif %}
+                                        {% elif current_category == 'Counting' and i > 0 %}
+                                            {% set current_last_four = current_label[-4:]|int if current_label[-4:].isdigit() else 0 %}
+                                            {% set first_last_four = first_label[-4:]|int if first_label[-4:].isdigit() else 0 %}
+                                            {% if current_last_four == first_last_four %}
+                                                {% set is_good = false %}
+                                            {% endif %}
+                                        {% endif %}
+
+                                        <span class="badge {% if is_good %}bg-success{% else %}bg-danger{% endif %}">
+                                            {% if is_good %}GOOD{% else %}NO GOOD{% endif %}
+                                        </span>
+                                    </td>
+                                    {% if i == 0 %}
+                                        <td class="align-middle text-center" rowspan="{{ categories|length }}">
+                                            <a href="{{ url_for('revise_item_page', item_id=item.id) }}" 
+                                               class="btn btn-outline-primary btn-sm">Revise</a>
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Footer Actions -->
+            <div class="d-flex justify-content-center gap-2 mt-4">
+                <a href="{{ url_for('register_item') }}" class="btn btn-primary">New Register</a>
+                <button id="deleteButton" class="btn btn-danger" style="display: none;">Delete</button>
             </div>
         </div>
-
-        <form id="deleteForm" action="{{ url_for('delete_items') }}" method="POST" style="display: none;">
-            <!-- Hidden inputs will be dynamically added here -->
-        </form>
     </div>
 
-    <script>
-        const selectAllCheckbox = document.getElementById('selectAll');
-        const deleteButton = document.getElementById('deleteButton');
-        const deleteForm = document.getElementById('deleteForm');
-        const itemCheckboxes = document.getElementsByName('selected_items[]');
+    <form id="deleteForm" action="{{ url_for('delete_items') }}" method="POST" style="display: none;"></form>
+</div>
+{% endblock %}
 
-        // Select All functionality
-        selectAllCheckbox.addEventListener('change', function() {
-            itemCheckboxes.forEach(checkbox => {
-                checkbox.checked = this.checked;
-            });
-            updateDeleteButtonVisibility();
-        });
+{% block scripts %}
+<script>
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const deleteButton = document.getElementById('deleteButton');
+    const deleteForm = document.getElementById('deleteForm');
+    const itemCheckboxes = document.getElementsByName('selected_items[]');
 
-        // Individual checkbox change handler
+    // Select All functionality
+    selectAllCheckbox.addEventListener('change', function() {
         itemCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', updateDeleteButtonVisibility);
+            checkbox.checked = this.checked;
         });
+        updateDeleteButtonVisibility();
+    });
 
-        // Update delete button visibility
-        function updateDeleteButtonVisibility() {
-            const checkedBoxes = Array.from(itemCheckboxes).filter(cb => cb.checked);
-            deleteButton.style.display = checkedBoxes.length > 0 ? 'block' : 'none';
+    // Individual checkbox change handler
+    itemCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateDeleteButtonVisibility);
+    });
+
+    // Update delete button visibility
+    function updateDeleteButtonVisibility() {
+        const checkedBoxes = Array.from(itemCheckboxes).filter(cb => cb.checked);
+        deleteButton.style.display = checkedBoxes.length > 0 ? 'block' : 'none';
+    }
+
+    // Delete button click handler
+    deleteButton.addEventListener('click', function() {
+        const checkedBoxes = Array.from(itemCheckboxes).filter(cb => cb.checked);
+        
+        if (checkedBoxes.length === 0) return;
+
+        const itemCount = checkedBoxes.length;
+        const confirmMessage = itemCount === 1 
+            ? 'Are you sure you want to delete this item?' 
+            : `Are you sure you want to delete these ${itemCount} items?`;
+
+        if (confirm(confirmMessage)) {
+            deleteForm.innerHTML = '';
+            checkedBoxes.forEach(checkbox => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'item_ids[]';
+                input.value = checkbox.value;
+                deleteForm.appendChild(input);
+            });
+            deleteForm.submit();
         }
+    });
 
-        // Delete button click handler
-        deleteButton.addEventListener('click', function() {
-            const checkedBoxes = Array.from(itemCheckboxes).filter(cb => cb.checked);
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    const tableRows = document.querySelectorAll('tbody tr[data-main-row="true"]');
+    const noResults = document.getElementById('noResults');
+
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        let hasResults = false;
+
+        tableRows.forEach(row => {
+            const itemName = row.children[2].textContent.toLowerCase();
+            let currentRow = row;
+            const associatedRows = [currentRow];
             
-            if (checkedBoxes.length === 0) return;
+            while (currentRow.nextElementSibling && !currentRow.nextElementSibling.hasAttribute('data-main-row')) {
+                currentRow = currentRow.nextElementSibling;
+                associatedRows.push(currentRow);
+            }
 
-            const itemCount = checkedBoxes.length;
-            const confirmMessage = itemCount === 1 
-                ? 'Are you sure you want to delete this item?' 
-                : `Are you sure you want to delete these ${itemCount} items?`;
-
-            if (confirm(confirmMessage)) {
-                // Clear previous hidden inputs
-                deleteForm.innerHTML = '';
-                
-                // Add hidden inputs for each selected item
-                checkedBoxes.forEach(checkbox => {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = 'item_ids[]';
-                    input.value = checkbox.value;
-                    deleteForm.appendChild(input);
-                });
-
-                // Submit the form
-                deleteForm.submit();
+            if (itemName.includes(searchTerm)) {
+                associatedRows.forEach(r => r.style.display = '');
+                hasResults = true;
+            } else {
+                associatedRows.forEach(r => r.style.display = 'none');
             }
         });
 
-        // Add search functionality
-        const searchInput = document.getElementById('searchInput');
-        const tableRows = document.querySelectorAll('tbody tr[data-main-row="true"]');
-        const noResults = document.getElementById('noResults');
+        noResults.style.display = hasResults ? 'none' : 'block';
+    });
+</script>
+{% endblock %}
 
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            let hasResults = false;
-
-            tableRows.forEach(row => {
-                const itemName = row.children[2].textContent.toLowerCase();
-                
-                // Get all associated rows for this item
-                let currentRow = row;
-                const associatedRows = [currentRow];
-                while (currentRow.nextElementSibling && !currentRow.nextElementSibling.hasAttribute('data-main-row')) {
-                    currentRow = currentRow.nextElementSibling;
-                    associatedRows.push(currentRow);
-                }
-
-                // Only check item name
-                if (itemName.includes(searchTerm)) {
-                    // Show all associated rows
-                    associatedRows.forEach(r => r.classList.remove('hidden'));
-                    hasResults = true;
-                } else {
-                    // Hide all associated rows
-                    associatedRows.forEach(r => r.classList.add('hidden'));
-                }
-            });
-
-            noResults.style.display = hasResults ? 'none' : 'block';
-        });
-    </script>
-</body>
-</html>
+{% block styles %}
+{% endblock %}

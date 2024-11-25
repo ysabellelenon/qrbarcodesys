@@ -238,7 +238,7 @@
     window.addEventListener('load', () => {
         const button = document.createElement('button');
         button.textContent = 'Unregister Service Workers';
-        button.className = 'btn btn-danger position-fixed bottom-0 end-0 m-3';
+        button.className = 'btn btn-sm btn-danger position-fixed bottom-0 mb-2 m-auto';
         button.onclick = async () => {
             try {
                 const registrations = await navigator.serviceWorker.getRegistrations();

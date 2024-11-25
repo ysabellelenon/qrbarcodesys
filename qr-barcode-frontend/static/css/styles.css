@@ -707,7 +707,6 @@ body:has(.login-container) {
 .offline::after {
   position: fixed;
   top: 10px;
-  right: 10px;
   background: #ff4444;
   color: white;
   padding: 8px 16px;

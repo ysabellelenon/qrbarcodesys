@@ -68,6 +68,25 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
     log('Fetch event for:', event.request.url);
     
+    // Don't cache POST requests
+    if (event.request.method === 'POST') {
+        event.respondWith(
+            fetch(event.request.clone())
+                .catch(err => {
+                    log('POST request failed, falling back to offline handling');
+                    // Handle offline POST requests
+                    return new Response(JSON.stringify({
+                        error: 'You are offline. The action will be queued for later.',
+                        offline: true
+                    }), {
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                })
+        );
+        return;
+    }
+
+    // Handle GET requests with cache strategy
     event.respondWith(
         fetch(event.request.clone())
             .then(response => {

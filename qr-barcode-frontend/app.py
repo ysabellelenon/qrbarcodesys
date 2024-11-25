@@ -5,6 +5,8 @@ import os
 from datetime import datetime
 from functools import wraps
 from flask import abort
+import click
+from flask.cli import with_appcontext
 
 app = Flask(__name__)
 app.secret_key = 'QRBARCODE_KEY'
@@ -467,5 +469,51 @@ def account_settings():
 def new_account():
     return render_template('new_account.html')
 
+@click.command('create-user')
+@with_appcontext
+@click.option('--username', required=True, help='Username for the new user')
+@click.option('--password', required=True, help='Password for the new user')
+@click.option('--first-name', required=True, help='First name of the user')
+@click.option('--surname', required=True, help='Surname of the user')
+@click.option('--section', required=True, help='Section of the user')
+@click.option('--role', required=True, type=click.Choice(['Admin', 'Assembly'], case_sensitive=True), help='Role of the user')
+@click.option('--middle-name', default='', help='Middle name of the user (optional)')
+def create_user_command(username, password, first_name, surname, section, role, middle_name):
+    """Create a new user via CLI."""
+    try:
+        # Check if user already exists
+        if User.query.filter_by(username=username).first():
+            click.echo(f'Error: Username {username} already exists')
+            return
+
+        user = User(
+            username=username,
+            password=generate_password_hash(password),
+            first_name=first_name,
+            middle_name=middle_name,
+            surname=surname,
+            section=section,
+            role=role
+        )
+        db.session.add(user)
+        db.session.commit()
+        click.echo(f'Successfully created user: {username}')
+    except Exception as e:
+        click.echo(f'Error creating user: {str(e)}')
+    
+    # # Basic usage
+    # flask create-user --username ricky --password secretpass --first-name Ricky --surname Lenon --section Engineering --role Admin
+
+    # # With optional middle name
+    # flask create-user --username john_doe --password secretpass --first-name John --middle-name Robert --surname Doe --section Engineering --role Admin
+
+
+# Register the command with Flask
+app.cli.add_command(create_user_command)
+
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
+
+
+
+

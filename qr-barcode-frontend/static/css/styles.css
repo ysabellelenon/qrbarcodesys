@@ -705,7 +705,6 @@ body:has(.login-container) {
 }
 
 .offline::after {
-  content: 'Offline Mode';
   position: fixed;
   top: 10px;
   right: 10px;

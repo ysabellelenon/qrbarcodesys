@@ -1,382 +1,161 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-    <meta name="theme-color" content="#047cc4">
-    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192x192.png') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <style>
-        @font-face {
-            font-family: 'Poppins';
-            font-style: normal;
-            font-weight: 400;
-            src: url("{{ url_for('static', filename='fonts/Poppins-Regular.ttf') }}") format('truetype');
-        }
-        
-        @font-face {
-            font-family: 'Poppins';
-            font-style: normal;
-            font-weight: 600;
-            src: url("{{ url_for('static', filename='fonts/Poppins-SemiBold.ttf') }}") format('truetype');
-        }
-    </style>
-    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
-</head>
-<body>
-    <div class="login-container">
-        <div class="image-container">
-            <img src="{{ url_for('static', filename='img/jae-logo.jpg') }}" alt="JAE Logo">
-        </div>
-        <div class="form-container">
-            <div id="message-container">
-                <!-- Remove the flash messages section from here -->
-            </div>
-            <form id="loginForm" action="{{ url_for('login') }}" method="post">
-                <div class="form-group">
-                    <label for="username">Username:</label>
-                    <input type="text" id="username" name="username" required>
-                    <span class="error-message" id="username-error"></span>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" name="password" required>
-                    <span class="error-message" id="password-error"></span>
-                </div>
-                <div class="button-container">
-                    <button type="submit" id="submitBtn">
-                        <span class="button-text">Login</span>
-                        <span class="spinner" style="display: none;"></span>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+{% extends "base.html" %}
 
-    <script>
-        // Login-specific code
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            // Reset error messages
-            document.querySelectorAll('.error-message').forEach(elem => elem.textContent = '');
-            
-            // Get form data
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            
-            // Basic validation
-            if (!validateLoginForm(username, password)) return;
+{% block title %}Login{% endblock %}
 
-            // Show loading state
-            toggleLoadingState(true);
-            
-            try {
-                await handleLogin(username, password);
-            } catch (error) {
-                console.error('Login error:', error);
-                const messageContainer = document.getElementById('message-container');
-                messageContainer.innerHTML = `<p class="error">${error.message || 'An error occurred during login'}</p>`;
-            } finally {
-                toggleLoadingState(false);
-            }
-        });
+{% block body_class %}login-page{% endblock %}
 
-        // Login Helper Functions
-        function validateLoginForm(username, password) {
-            let hasError = false;
-            if (username.length < 3) {
-                document.getElementById('username-error').textContent = 'Username must be at least 3 characters';
-                hasError = true;
-            }
-            if (password.length < 6) {
-                document.getElementById('password-error').textContent = 'Password must be at least 6 characters';
-                hasError = true;
-            }
-            return !hasError;
-        }
-
-        function toggleLoadingState(isLoading) {
-            const submitBtn = document.getElementById('submitBtn');
-            const buttonText = submitBtn.querySelector('.button-text');
-            const spinner = submitBtn.querySelector('.spinner');
-            buttonText.style.display = isLoading ? 'none' : 'inline';
-            spinner.style.display = isLoading ? 'inline-block' : 'none';
-            submitBtn.disabled = isLoading;
-        }
-
-        function showError(message) {
-            const messageContainer = document.getElementById('message-container');
-            messageContainer.innerHTML = `<p class="error">${message}</p>`;
-        }
-    </script>
-
-    <style>
-        .error-message {
-            color: #ff0000;
-            font-size: 0.8em;
-            margin-top: 5px;
-            display: block;
-        }
-
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #3498db;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            display: none;
-            vertical-align: middle;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .button-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .offline-indicator {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: #ff4444;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-size: 14px;
-            display: none;
-        }
-
-        body.offline .offline-indicator {
-            display: block;
-        }
-
-    </style>
-
-    <!-- Install App Modal -->
-    <div id="installModal" class="install-modal">
-        <div class="install-modal-content">
-            <div class="install-text">
-                <h3>Install QR Barcode System</h3>
-                <p>Install this app on your device for quick and easy access.</p>
-            </div>
-            <div class="install-buttons">
-                <button id="installLater" class="install-btn install-later">Later</button>
-                <button id="installNow" class="install-btn install-now">Install</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- PWA Install Script -->
-    <script>
-        const dbName = 'QRBarcodeDB';
-        const dbVersion = 1;
-        let db;
-
-        // Initialize IndexedDB and PWA features when the page loads
-        async function initApp() {
-            await initIndexedDB();
-            initPWAInstallPrompt();
-        }
-
-        async function initIndexedDB() {
-            try {
-                const request = indexedDB.open(dbName, dbVersion);
-                
-                request.onerror = (event) => {
-                    console.error('IndexedDB error:', event.target.error);
-                };
-
-                request.onupgradeneeded = (event) => {
-                    const db = event.target.result;
-                    
-                    // Create stores if they don't exist
-                    if (!db.objectStoreNames.contains('users')) {
-                        db.createObjectStore('users', { keyPath: 'username' });
-                    }
-                    if (!db.objectStoreNames.contains('sessions')) {
-                        db.createObjectStore('sessions', { keyPath: 'id', autoIncrement: true });
-                    }
-                    if (!db.objectStoreNames.contains('items')) {
-                        db.createObjectStore('items', { keyPath: 'id', autoIncrement: true });
-                    }
-                    if (!db.objectStoreNames.contains('offlineQueue')) {
-                        db.createObjectStore('offlineQueue', { keyPath: 'id', autoIncrement: true });
-                    }
-                };
-
-                request.onsuccess = (event) => {
-                    db = event.target.result;
-                    console.log('IndexedDB initialized successfully');
-                };
-
-                // Register for background sync if supported
-                if ('serviceWorker' in navigator && 'SyncManager' in window) {
-                    const registration = await navigator.serviceWorker.ready;
-                    await registration.sync.register('sync-pending-requests');
-                }
-            } catch (error) {
-                console.error('Error initializing IndexedDB:', error);
-            }
-        }
-
-        function initPWAInstallPrompt() {
-            let deferredPrompt;
-            const installModal = document.getElementById('installModal');
-            const installButton = document.getElementById('installNow');
-            const laterButton = document.getElementById('installLater');
-
-            if (window.matchMedia('(display-mode: standalone)').matches) {
-                installModal.style.display = 'none';
-            }
-
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                
-                if (shouldShowInstallPrompt()) {
-                    setTimeout(() => {
-                        installModal.classList.add('show');
-                    }, 2000);
-                }
-            });
-
-            installButton?.addEventListener('click', async () => {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    deferredPrompt = null;
-                    installModal.classList.remove('show');
-                    console.log(`User response to the install prompt: ${outcome}`);
-                }
-            });
-
-            laterButton?.addEventListener('click', () => {
-                installModal.classList.remove('show');
-                localStorage.setItem('installPromptDismissed', Date.now());
-            });
-        }
-
-        function shouldShowInstallPrompt() {
-            const dismissedTime = localStorage.getItem('installPromptDismissed');
-            if (!dismissedTime) return true;
-            const threeDays = 3 * 24 * 60 * 60 * 1000;
-            return Date.now() - parseInt(dismissedTime) > threeDays;
-        }
-
-        // Initialize the app
-        initApp();
-
-        // Service Worker registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', async () => {
-                try {
-                    const registration = await navigator.serviceWorker.register('/sw.js', {
-                        scope: '/'
-                    });
-                    console.log('ServiceWorker registration successful with scope:', registration.scope);
-                    
-                    // Force update check
-                    registration.update();
-                    
-                    // Handle updates
-                    registration.addEventListener('updatefound', () => {
-                        const newWorker = registration.installing;
-                        newWorker.addEventListener('statechange', () => {
-                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                console.log('New service worker installed');
-                            }
-                        });
-                    });
-                } catch (err) {
-                    console.error('ServiceWorker registration failed:', err);
-                }
-            });
-        }
-    </script>
-
-    <script>
-    // Single unregister function
-    async function unregisterAllServiceWorkers() {
-        try {
-            // Get all service worker registrations
-            const registrations = await navigator.serviceWorker.getRegistrations();
-            
-            console.log(`Found ${registrations.length} service worker(s)`);
-            
-            // Unregister each service worker
-            const unregisterPromises = registrations.map(async registration => {
-                const scope = registration.scope;
-                try {
-                    const success = await registration.unregister();
-                    if (success) {
-                        console.log(`Successfully unregistered service worker for: ${scope}`);
-                    } else {
-                        console.warn(`Failed to unregister service worker for: ${scope}`);
-                    }
-                } catch (err) {
-                    console.error(`Error unregistering service worker for ${scope}:`, err);
-                }
-            });
-
-            await Promise.all(unregisterPromises);
-
-            // Clear all caches
-            if ('caches' in window) {
-                try {
-                    const cacheNames = await caches.keys();
-                    await Promise.all(
-                        cacheNames.map(cacheName => caches.delete(cacheName))
-                    );
-                    console.log('All caches cleared');
-                } catch (err) {
-                    console.error('Error clearing caches:', err);
-                }
-            }
-
-            // Reload the page
-            window.location.reload();
-        } catch (err) {
-            console.error('Error during service worker cleanup:', err);
-        }
+{% block styles %}
+<style>
+    .login-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f8f9fa;
     }
 
-    // Add button to trigger unregistration
-    window.addEventListener('load', () => {
-        const button = document.createElement('button');
-        button.textContent = 'Unregister Service Workers';
-        button.style.cssText = `
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 10px;
-            background: red;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            z-index: 9999;
-        `;
-        button.onclick = unregisterAllServiceWorkers;
-        document.body.appendChild(button);
-    });
-    </script>
+    .login-container {
+        width: 100%;
+        max-width: 400px;
+        padding: 2rem;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
 
-    <script>
-    // Add this function after your form event listener
+    .image-container {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .image-container img {
+        max-width: 200px;
+        height: auto;
+    }
+
+    /* Keep the spinner styles since they're login-specific */
+    .spinner {
+        width: 20px;
+        height: 20px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        display: none;
+        vertical-align: middle;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="image-container">
+        <img src="{{ url_for('static', filename='img/jae-logo.jpg') }}" alt="JAE Logo" class="img-fluid">
+    </div>
+    <div class="form-container">
+        <div id="message-container"></div>
+        <form id="loginForm" action="{{ url_for('login') }}" method="post">
+            <div class="mb-3">
+                <label for="username" class="form-label">Username:</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+                <span class="error-message" id="username-error"></span>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password:</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+                <span class="error-message" id="password-error"></span>
+            </div>
+            <div class="d-grid">
+                <button type="submit" id="submitBtn" class="btn btn-primary">
+                    <span class="button-text">Login</span>
+                    <span class="spinner"></span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Install App Modal -->
+<div class="modal fade" id="installModal" tabindex="-1" aria-labelledby="installModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="installModalLabel">Install QR Barcode System</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Install this app on your device for quick and easy access.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="installLater" data-bs-dismiss="modal">Later</button>
+                <button type="button" class="btn btn-primary" id="installNow">Install</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Login form handling -->
+<script>
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Reset error messages
+        document.querySelectorAll('.error-message').forEach(elem => elem.textContent = '');
+        
+        // Get form data
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+        
+        // Basic validation
+        if (!validateLoginForm(username, password)) return;
+
+        // Show loading state
+        toggleLoadingState(true);
+        
+        try {
+            await handleLogin(username, password);
+        } catch (error) {
+            console.error('Login error:', error);
+            const messageContainer = document.getElementById('message-container');
+            messageContainer.innerHTML = `<div class="alert alert-danger">${error.message || 'An error occurred during login'}</div>`;
+        } finally {
+            toggleLoadingState(false);
+        }
+    });
+
+    // Login Helper Functions
+    function validateLoginForm(username, password) {
+        let hasError = false;
+        if (username.length < 3) {
+            document.getElementById('username-error').textContent = 'Username must be at least 3 characters';
+            hasError = true;
+        }
+        if (password.length < 6) {
+            document.getElementById('password-error').textContent = 'Password must be at least 6 characters';
+            hasError = true;
+        }
+        return !hasError;
+    }
+
+    function toggleLoadingState(isLoading) {
+        const submitBtn = document.getElementById('submitBtn');
+        const buttonText = submitBtn.querySelector('.button-text');
+        const spinner = submitBtn.querySelector('.spinner');
+        buttonText.style.display = isLoading ? 'none' : 'inline';
+        spinner.style.display = isLoading ? 'inline-block' : 'none';
+        submitBtn.disabled = isLoading;
+    }
+
     async function handleLogin(username, password) {
         try {
-            // Check if we're online
             if (navigator.onLine) {
-                // Attempt online login
                 const response = await fetch('/login', {
                     method: 'POST',
                     headers: {
@@ -405,11 +184,9 @@
                     hashedPassword: await hashPassword(password)
                 };
 
-                // Store user data in IndexedDB
                 await storeUserData(userData);
                 console.log('User data stored successfully');
                 
-                // Store session data
                 await storeSessionData({
                     token: result.token,
                     expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
@@ -417,7 +194,6 @@
                 
                 window.location.href = result.redirect;
             } else {
-                // Attempt offline login
                 const user = await checkOfflineCredentials(username, password);
                 if (user) {
                     console.log('Offline credentials verified');
@@ -428,11 +204,10 @@
             }
         } catch (error) {
             console.error('Login error:', error);
-            throw error; // Re-throw to be handled by the form submit handler
+            throw error;
         }
     }
 
-    // Add this function for offline credential checking
     async function checkOfflineCredentials(username, password) {
         try {
             const user = await getUserFromDB(username);
@@ -454,6 +229,31 @@
             return null;
         }
     }
-    </script>
-</body>
-</html>
+</script>
+
+<!-- Service Worker Unregistration (Development Only) -->
+<script>
+    // Add button to trigger unregistration (only in development)
+    {% if config.DEBUG %}
+    window.addEventListener('load', () => {
+        const button = document.createElement('button');
+        button.textContent = 'Unregister Service Workers';
+        button.className = 'btn btn-danger position-fixed bottom-0 end-0 m-3';
+        button.onclick = async () => {
+            try {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                await Promise.all(registrations.map(r => r.unregister()));
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(cacheNames.map(n => caches.delete(n)));
+                }
+                window.location.reload();
+            } catch (err) {
+                console.error('Error during service worker cleanup:', err);
+            }
+        };
+        document.body.appendChild(button);
+    });
+    {% endif %}
+</script>
+{% endblock %}

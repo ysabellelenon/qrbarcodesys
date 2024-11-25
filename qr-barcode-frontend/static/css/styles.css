@@ -699,3 +699,19 @@ body:has(.login-container) {
         opacity: 1;
     }
 }
+
+.offline {
+  position: relative;
+}
+
+.offline::after {
+  content: 'Offline Mode';
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: #ff4444;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  z-index: 9999;
+}

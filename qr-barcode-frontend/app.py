@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session, make_response, send_file, send_from_directory
 from models import db, User, Item
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
@@ -48,7 +48,9 @@ def login():
 
             return jsonify({
                 'message': 'Login successful!',
-                'redirect': redirect_url
+                'redirect': redirect_url,
+                'role': user.role,
+                'token': generate_session_token()
             }), 200
 
     return render_template('login.html')
@@ -516,6 +518,35 @@ app.cli.add_command(create_user_command)
 def add_header(response):
     if 'manifest.json' in request.path:
         response.headers['Content-Type'] = 'application/manifest+json'
+    return response
+
+@app.route('/api/sync', methods=['POST'])
+def sync_data():
+    try:
+        # Handle syncing of offline data
+        offline_data = request.json
+        
+        # Process each queued item
+        for item in offline_data.get('queue', []):
+            # Handle different types of queued actions
+            if item['type'] == 'scan':
+                process_offline_scan(item['data'])
+            elif item['type'] == 'login':
+                process_offline_login(item['data'])
+                
+        return jsonify({'status': 'success'})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
+# Add this helper function if you want to use tokens
+def generate_session_token():
+    return os.urandom(24).hex()
+
+@app.route('/sw.js')
+def service_worker():
+    response = make_response(send_from_directory('static', 'sw.js'))
+    response.headers['Content-Type'] = 'application/javascript'
+    response.headers['Service-Worker-Allowed'] = '/'
     return response
 
 if __name__ == '__main__':

@@ -22,6 +22,7 @@ const URLS_TO_CACHE = {
     
     // Static assets
     assets: [
+        '/static/css/bootstrap.min.css',
         '/static/css/styles.css',
         '/static/js/main.js',
         '/static/img/jae-logo.jpg'

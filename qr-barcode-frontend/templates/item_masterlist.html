@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container py-4">
      <!-- Back Button -->
-     <button type="button" class="btn btn-outline-secondary position-absolute top-4 start-4" onclick="history.back()">
+     <button type="button" class="btn btn-secondary position-absolute top-4 start-4" onclick="history.back()">
         <i class="bi bi-arrow-left"></i> Back
     </button>
     <h2 class="text-center mb-4">Item Masterlist</h2>
@@ -60,7 +60,7 @@
                                         <td class="align-middle" rowspan="{{ categories|length }}">{{ item.name }}</td>
                                         <td class="align-middle" rowspan="{{ categories|length }}">{{ item.revision }}</td>
                                     {% endif %}
-                                    <td class="align-middle text-center">
+                                    <td class="align-middle text-centerx">
                                         {% if categories[i]|trim == 'Counting' %}
                                             <span class="badge bg-primary">Counting</span>
                                         {% else %}
@@ -68,7 +68,7 @@
                                         {% endif %}
                                     </td>
                                     <td class="align-middle">{{ label_contents[i]|trim }}</td>
-                                    <td class="align-middle text-center">
+                                    <td class="align-middle text-centerx">
                                         {% set current_category = categories[i]|trim %}
                                         {% set current_label = label_contents[i]|trim %}
                                         {% set is_good = true %}
@@ -197,4 +197,9 @@
 {% endblock %}
 
 {% block styles %}
+<style>
+    .offline-indicator {
+        right: 1rem;
+    }
+</style>
 {% endblock %}

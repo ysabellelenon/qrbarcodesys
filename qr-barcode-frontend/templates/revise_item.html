@@ -2,10 +2,17 @@
 
 {% block title %}Revise Item{% endblock %}
 
+{% block styles %}
+<style>
+    .offline-indicator {
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container py-4">
     <!-- Back Button -->
-    <button type="button" class="btn btn-outline-secondary position-absolute top-4 start-4" onclick="history.back()">
+    <button type="button" class="btn btn-secondary position-absolute top-4 start-4" onclick="history.back()">
         <i class="bi bi-arrow-left"></i> Back
     </button>
 
@@ -106,3 +113,4 @@
     }
 </script>
 {% endblock %} 
+

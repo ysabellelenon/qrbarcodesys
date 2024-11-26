@@ -1,5 +1,6 @@
 /* Reset and Base Styles */
 :root {
+  --bs-primary: #333;
   --primary: #333;
   --secondary: #6B7280;
   --success: #10B981;
@@ -67,6 +68,12 @@ body {
     --bs-btn-disabled-bg: transparent;
     --bs-btn-disabled-border-color: var(--primary);
     --bs-gradient: none;
+}
+
+.btn-check:checked+.btn, .btn.active, .btn.show, .btn:first-child:active, :not(.btn-check)+.btn:active {
+    color: var(--bs-btn-active-color);
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
 }
 
 /* Cards */

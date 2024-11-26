@@ -1,6 +1,7 @@
 /* Reset and Base Styles */
 :root {
   --bs-primary: #333;
+  --bs-btn-disabled-bg: #ccc;
   --primary: #333;
   --secondary: #6B7280;
   --success: #10B981;
@@ -51,7 +52,13 @@ body {
   background-color: var(--secondary);
   transform: translateY(-1px);
 }
-
+.btn.disabled, .btn:disabled, fieldset:disabled .btn {
+    color: var(--bs-btn-disabled-color);
+    pointer-events: none;
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    opacity: .5;
+}
 
 .btn-outline-primary {
     --bs-btn-color: var(--primary);

@@ -1,49 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account Settings</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <style>
-        /* Style for the back button */
-        .back-button {
-            display: inline-block;
-            padding: 8px 16px;
-            background-color: #f0f0f0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            color: #333;
-            text-decoration: none;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: absolute;
-            top: 20px;
-            left: 20px;
-        }
+{% extends "base.html" %}
 
-        .back-button:hover {
-            background-color: #047cc4 !important;
-            color: white !important;
-            border-color: #047cc4 !important;
-        }
+{% block title %}Account Settings{% endblock %}
 
-        /* Adjust h2 margin to prevent overlap with back button */
-        h2 {
-            margin-top: 40px;
-        }
-    </style>
-</head>
-<body>
-    <div class="engineer-container">
-        <!-- Back Button -->
-        <a href="{{ url_for('engineering_interface') }}" class="back-button">Back</a>
-    
-        <div class="menu">
-            <a href="{{ url_for('manage_accounts') }}" class="menu-item">Manage Accounts</a>
-            <a href="{{ url_for('new_account') }}" class="menu-item">New Account</a>
+{% block content %}
+<div class="container py-4">
+    <!-- Back Button -->
+    <button type="button" class="btn btn-outline-secondary position-absolute top-4 start-4" onclick="window.location.href='{{ url_for('engineering_interface') }}'">
+        <i class="bi bi-arrow-left"></i> Back
+    </button>
+
+    <h2 class="text-center mb-4">Account Settings</h2>
+
+    <div class="row justify-content-center g-4">
+        <!-- Manage Accounts Card -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h3 class="card-title mb-3">Manage Accounts</h3>
+                    <p class="card-text mb-4">View and manage existing user accounts</p>
+                    <a href="{{ url_for('manage_accounts') }}" class="btn btn-primary">
+                        <i class="bi bi-people me-2"></i>Manage Accounts
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- New Account Card -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <h3 class="card-title mb-3">New Account</h3>
+                    <p class="card-text mb-4">Create a new user account</p>
+                    <a href="{{ url_for('new_account') }}" class="btn btn-primary">
+                        <i class="bi bi-person-plus me-2"></i>Create Account
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
-</body>
-</html> 
+</div>
+{% endblock %} 

@@ -1,310 +1,154 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Existing Accounts</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <style>
-        .back-button {
-            display: inline-block;
-            padding: 8px 16px;
-            background-color: #f0f0f0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            color: #333;
-            text-decoration: none;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: absolute;
-            top: 20px;
-            left: 20px;
-        }
+{% extends "base.html" %}
 
-        .back-button:hover {
-            background-color: #047cc4 !important;
-            color: white !important;
-            border-color: #047cc4 !important;
-        }
+{% block title %}Manage Existing Accounts{% endblock %}
 
-        .action-buttons {
-            margin-top: 20px;
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
+{% block content %}
+<div class="container py-4">
+    <!-- Back Button -->
+    <button type="button" class="btn btn-secondary position-absolute top-4 start-4" onclick="window.location.href='{{ url_for('account_settings') }}'">
+        <i class="bi bi-arrow-left"></i> Back
+    </button>
 
-        .action-button {
-            padding: 8px 16px;
-            background-color: #a5a5a5;
-            border: 1px solid black;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+    <h2 class="text-center mb-4">Registered Users</h2>
 
-        .action-button:hover {
-            background-color: #888;
-        }
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
-        .delete-button {
-            background-color: #ff6b6b;
-            color: white;
-        }
-
-        .checkbox-column {
-            width: 50px;
-            text-align: center;
-        }
-
-        .alert {
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 4px;
-            text-align: center;
-        }
-
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .accounts-container {
-            max-width: 1000px;
-            width: 90%;
-            height: 90vh;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            padding: 20px;
-            margin: 0 auto;
-            overflow: hidden;
-        }
-
-        .table-container {
-            flex: 1;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin: 0;
-            padding: 0;
-            position: relative;
-        }
-
-        .header-top {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            margin-bottom: 5px;
-        }
-
-        .back-button {
-            position: absolute;
-            left: 0;
-            top: 0;
-            margin: 0;
-        }
-
-        h2 {
-            margin: 0 auto;
-            padding-top: 20px;
-            padding-bottom: 15px;
-            text-align: center;
-        }
-
-        .search-wrapper {
-            width: 100%;
-            display: flex;
-            justify-content: flex-end;
-            margin: 0 0 5px 0;
-            padding: 0;
-        }
-
-        .search-container {
-            width: 250px;
-            margin-right: 0;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 14px;
-            height: 14px;
-            opacity: 0.6;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 6px 12px 6px 35px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            margin: 0;
-            line-height: 1.2;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: #047cc4;
-            box-shadow: 0 0 0 2px rgba(4, 124, 196, 0.1);
-        }
-
-        .search-input::placeholder {
-            color: #999;
-            font-size: 13px;
-        }
-
-        .no-results {
-            text-align: center;
-            padding: 3px;
-            color: #721c24;
-            margin: 0 0 5px 0;
-        }
-
-        /* Remove table margins */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 0;
-        }
-    </style>
-</head>
-<body>
-    <div class="accounts-container">
-        <div class="header-top">
-            <a href="{{ url_for('account_settings') }}" class="back-button">Back</a>
-            <h2>Registered Users</h2>
-        </div>
-
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        <div class="search-wrapper">
-            <div class="search-container">
-                <img src="{{ url_for('static', filename='img/search.png') }}" alt="Search" class="search-icon">
-                <input type="text" id="searchInput" class="search-input" placeholder="Search...">
-            </div>
-        </div>
-
-        <div id="noResults" class="no-results" style="display: none;">
-            User does not exist
-        </div>
-
-        <form id="userForm" action="{{ url_for('delete_users') }}" method="post" onsubmit="return confirmDelete()">
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th class="checkbox-column">
-                                <input type="checkbox" id="selectAll">
-                            </th>
-                            <th>No.</th>
-                            <th>Last Name</th>
-                            <th>First Name</th>
-                            <th>Line No.</th>
-                            <th>Section</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for user in users %}
-                        <tr>
-                            <td class="checkbox-column">
-                                <input type="checkbox" name="user_ids[]" value="{{ user.id }}">
-                            </td>
-                            <td>{{ loop.index }}</td>
-                            <td>{{ user.surname }}</td>
-                            <td>{{ user.first_name }}</td>
-                            <td>{{ user.role }}</td>
-                            <td>{{ user.section }}</td>
-                            <td>
-                                <a href="{{ url_for('edit_user', user_id=user.id) }}" class="action-button">Edit</a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <!-- Search Bar -->
+            <div class="d-flex justify-content-end mb-3">
+                <div class="position-relative" style="width: 250px;">
+                    <i class="bi bi-search position-absolute top-50 start-3 translate-middle-y text-muted"></i>
+                    <input type="text" id="searchInput" class="form-control ps-5" placeholder="Search...">
+                </div>
             </div>
 
-            <div class="action-buttons">
-                <button type="submit" class="action-button delete-button">Delete</button>
+            <!-- No Results Message -->
+            <div id="noResults" class="alert alert-warning text-center" style="display: none;">
+                User does not exist
             </div>
-        </form>
+
+            <form id="userForm" action="{{ url_for('delete_users') }}" method="post" onsubmit="return confirmDelete()">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th class="text-center" style="width: 50px;">
+                                    <input type="checkbox" id="selectAll" class="form-check-input">
+                                </th>
+                                <th>No.</th>
+                                <th>Last Name</th>
+                                <th>First Name</th>
+                                <th>Line No.</th>
+                                <th>Section</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td class="text-center">
+                                    <input type="checkbox" name="user_ids[]" value="{{ user.id }}" class="form-check-input">
+                                </td>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ user.surname }}</td>
+                                <td>{{ user.first_name }}</td>
+                                <td>{{ user.role }}</td>
+                                <td>{{ user.section }}</td>
+                                <td>
+                                    <a href="{{ url_for('edit_user', user_id=user.id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-end mt-3">
+                    <button type="submit" class="btn btn-primary" id="deleteButton" disabled>
+                        <i class="bi bi-trash me-2"></i>Delete Selected
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
+</div>
+{% endblock %}
 
-    <script>
-        document.getElementById('selectAll').addEventListener('change', function() {
-            const checkboxes = document.getElementsByName('user_ids[]');
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = this.checked;
-            });
+{% block scripts %}
+<script>
+    const deleteButton = document.getElementById('deleteButton');
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const checkboxes = document.getElementsByName('user_ids[]');
+
+    // Function to update delete button state
+    function updateDeleteButton() {
+        const selectedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+        deleteButton.disabled = selectedCount === 0;
+    }
+
+    // Select All checkbox handler
+    selectAllCheckbox.addEventListener('change', function() {
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
         });
+        updateDeleteButton();
+    });
 
-        function confirmDelete() {
-            const checkboxes = document.getElementsByName('user_ids[]');
-            const selectedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
-            
-            if (selectedCount === 0) {
-                alert('Please select at least one user to delete.');
-                return false;
-            }
+    // Individual checkbox handler
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateDeleteButton);
+    });
 
-            const message = selectedCount === 1 
-                ? 'Are you sure you want to delete this user?' 
-                : `Are you sure you want to delete these ${selectedCount} users?`;
-
-            return confirm(message);
+    function confirmDelete() {
+        const selectedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+        
+        if (selectedCount === 0) {
+            alert('Please select at least one user to delete.');
+            return false;
         }
 
-        // Add search functionality
-        const searchInput = document.getElementById('searchInput');
-        const tableRows = document.querySelectorAll('tbody tr');
-        const noResults = document.getElementById('noResults');
+        const message = selectedCount === 1 
+            ? 'Are you sure you want to delete this user?' 
+            : `Are you sure you want to delete these ${selectedCount} users?`;
 
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            let hasResults = false;
+        return confirm(message);
+    }
 
-            tableRows.forEach(row => {
-                const lastName = row.children[2].textContent.toLowerCase();
-                const firstName = row.children[3].textContent.toLowerCase();
-                const lineNo = row.children[4].textContent.toLowerCase();
-                
-                if (lastName.includes(searchTerm) || 
-                    firstName.includes(searchTerm) || 
-                    lineNo.includes(searchTerm)) {
-                    row.classList.remove('hidden');
-                    hasResults = true;
-                } else {
-                    row.classList.add('hidden');
-                }
-            });
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    const tableRows = document.querySelectorAll('tbody tr');
+    const noResults = document.getElementById('noResults');
 
-            noResults.style.display = hasResults ? 'none' : 'block';
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        let hasResults = false;
+
+        tableRows.forEach(row => {
+            const lastName = row.children[2].textContent.toLowerCase();
+            const firstName = row.children[3].textContent.toLowerCase();
+            const lineNo = row.children[4].textContent.toLowerCase();
+            
+            if (lastName.includes(searchTerm) || 
+                firstName.includes(searchTerm) || 
+                lineNo.includes(searchTerm)) {
+                row.style.display = '';
+                hasResults = true;
+            } else {
+                row.style.display = 'none';
+            }
         });
-    </script>
-</body>
-</html> 
+
+        noResults.style.display = hasResults ? 'none' : 'block';
+    });
+</script>
+{% endblock %} 

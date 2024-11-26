@@ -1,184 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sub-Lot Configuration</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <style>
-        .back-button {
-            display: inline-block;
-            padding: 8px 16px;
-            background-color: #f0f0f0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            color: #333;
-            text-decoration: none;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: absolute;
-            top: 20px;
-            left: 20px;
-        }
+{% extends "base.html" %}
 
-        .back-button:hover {
-            background-color: #047cc4 !important;
-            color: white !important;
-            border-color: #047cc4 !important;
-        }
+{% block title %}Sub-Lot Configuration{% endblock %}
 
-        .config-form {
-            width: 100%;
-            max-width: 800px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            justify-content: center;
-            align-items: center;
-            margin: 40px auto;
-        }
+{% block content %}
+<div class="container py-4">
+    <!-- Back Button -->
+    <button type="button" class="btn btn-outline-secondary position-absolute top-4 start-4" onclick="history.back()">
+        <i class="bi bi-arrow-left"></i> Back
+    </button>
 
-        .form-section {
-            width: 100%;
-            max-width: 800px;
-            margin: 0 0 20px 0;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: #fff;
-        }
+    <h2 class="text-center mb-4">Sub-Lot Configuration</h2>
 
-        .section-content {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-            gap: 40px;
-        }
-
-        .sublot-config {
-            flex-grow: 1;
-            display: flex;
-            justify-content: flex-start;
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            min-width: 300px;
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
-            flex: 0 0 auto;
-            margin: 0;
-        }
-
-        .checkbox-group label {
-            text-align: left;
-            font-size: 14px;
-            margin: 0;
-        }
-
-        .form-group {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .form-group label {
-            text-align: left;
-            white-space: normal;
-            line-height: 1.2;
-            font-size: 14px;
-            margin: 0;
-        }
-
-        .form-group select {
-            width: 100px;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        .button-container {
-            width: 100%;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .next-button {
-            padding: 10px 30px;
-            font-size: 16px;
-            background-color: #a5a5a5;
-            border: 1px solid black;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .next-button:hover {
-            background-color: #888;
-        }
-
-        select {
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            background-size: 1em;
-        }
-
-        h2 {
-            margin-bottom: 40px;
-            color: #333;
-            text-align: center;
-        }
-
-        .form-group select:disabled {
-            background-color: #f5f5f5;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-
-        .form-group select:not(:disabled) {
-            background-color: white;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body class="form-page">
-    <div class="engineer-container">
-        <a href="{{ url_for('register_item', preserve_state=True) }}" class="back-button">Back</a>
-
-        <form class="config-form" action="{{ url_for('revise_item', item_id=item_id) }}" method="post">
-            {% for item in counting_items %}
-            <div class="form-section">
-                <div class="section-content">
-                    <div class="checkbox-group">
-                        <label for="enable_sublot_{{ item.index }}">Enable Sub-Lot number rules for<br>"{{ item.label }}"</label>
-                        <input type="checkbox" 
-                               id="enable_sublot_{{ item.index }}" 
-                               name="enable_sublot_{{ item.index }}"
-                               class="sublot-checkbox">
+    <form action="{{ url_for('revise_item', item_id=item_id) }}" method="post">
+        {% for item in counting_items %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input type="checkbox" 
+                                   class="form-check-input sublot-checkbox" 
+                                   id="enable_sublot_{{ item.index }}" 
+                                   name="enable_sublot_{{ item.index }}">
+                            <label class="form-check-label" for="enable_sublot_{{ item.index }}">
+                                Enable Sub-Lot number rules for<br>"{{ item.label }}"
+                            </label>
+                        </div>
                     </div>
 
-                    <div id="sublot-config-{{ item.index }}" class="sublot-config">
-                        <div class="form-group">
-                            <label for="serial_numbers_{{ item.index }}">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center gap-3">
+                            <label class="form-label mb-0" for="serial_numbers_{{ item.index }}">
                                 Number of serial no. for<br>"{{ item.label }}"
                             </label>
-                            <select id="serial_numbers_{{ item.index }}" 
+                            <select class="form-select w-auto" 
+                                    id="serial_numbers_{{ item.index }}" 
                                     name="serial_numbers_{{ item.index }}" 
                                     required
                                     disabled>
-                                <option value="">Select Number</option>
+                                <option value="">Select</option>
                                 {% for i in range(1, 11) %}
                                     <option value="{{ i }}">{{ i }}</option>
                                 {% endfor %}
@@ -187,27 +47,56 @@
                     </div>
                 </div>
             </div>
-            {% endfor %}
+        </div>
+        {% endfor %}
 
-            <div class="button-container">
-                <button type="submit" class="next-button">Next</button>
-            </div>
-        </form>
-    </div>
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary px-4 py-2">Next</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
 
-    <script>
-        document.querySelectorAll('.sublot-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                const index = this.id.split('_').pop();
-                const select = document.getElementById(`serial_numbers_${index}`);
-                
-                select.disabled = !this.checked;
-                
-                if (!this.checked) {
-                    select.value = '';
-                }
-            });
+{% block styles %}
+<style>
+    /* Custom styles for select width */
+    .form-select.w-auto {
+        width: 100px !important;
+    }
+
+    /* Style for disabled select */
+    .form-select:disabled {
+        background-color: var(--bs-gray-100);
+    }
+
+    /* Larger checkbox */
+    .form-check-input {
+        width: 1.2em;
+        height: 1.2em;
+        margin-top: 0.25em;
+    }
+
+    /* Better label spacing */
+    .form-check-label {
+        padding-left: 0.5rem;
+        line-height: 1.4;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.querySelectorAll('.sublot-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const index = this.id.split('_').pop();
+            const select = document.getElementById(`serial_numbers_${index}`);
+            
+            select.disabled = !this.checked;
+            
+            if (!this.checked) {
+                select.value = '';
+            }
         });
-    </script>
-</body>
-</html> 
+    });
+</script>
+{% endblock %} 

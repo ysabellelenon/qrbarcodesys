@@ -7,6 +7,7 @@ from functools import wraps
 from flask import abort
 import click
 from flask.cli import with_appcontext
+import ssl
 
 app = Flask(__name__)
 app.secret_key = 'QRBARCODE_KEY'
@@ -564,7 +565,10 @@ def service_worker():
     return response
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    context.load_cert_chain('cert.pem', 'key.pem')
+    app.run(debug=True, host='0.0.0.0', port=5001, ssl_context=context)
+    # app.run(debug=True, host='0.0.0.0', port=5001, ssl_context=('cert.pem', 'key.pem'))
 
 
 

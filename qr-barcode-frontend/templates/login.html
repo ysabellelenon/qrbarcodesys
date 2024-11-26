@@ -145,6 +145,17 @@
         submitBtn.disabled = isLoading;
     }
 
+    async function hashPassword(password) {
+        // Simple hash function for offline storage
+        let hash = 0;
+        for (let i = 0; i < password.length; i++) {
+            const char = password.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+        return hash.toString(16);
+    }
+
     async function handleLogin(username, password) {
         try {
             if (navigator.onLine) {

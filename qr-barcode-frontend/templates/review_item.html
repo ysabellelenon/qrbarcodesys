@@ -2,106 +2,96 @@
 
 {% block title %}Review Item Details{% endblock %}
 
-{% block styles %}
-<style>
-    .review-container {
-        max-width: 800px;
-        margin: 40px auto;
-    }
-
-    .review-label {
-        color: #666;
-        font-weight: 500;
-    }
-
-    .review-value {
-        color: #333;
-    }
-</style>
-{% endblock %}
-
 {% block content %}
-<div class="container">
+<div class="container py-4">
     <!-- Back Button -->
-    <button type="button" class="btn btn-outline-secondary position-absolute top-4 start-4" onclick="history.back()">
+    <button type="button" class="btn btn-secondary position-absolute top-4 start-4" onclick="history.back()">
         <i class="bi bi-arrow-left"></i> Back
     </button>
 
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <h2 class="text-center mb-4">Review Item Details</h2>
-            
-            <!-- Item Information Section -->
-            <div class="mb-4">
-                <h3 class="mb-3">Item Information</h3>
-                <div class="row g-3 mb-2">
-                    <div class="col-md-4 review-label">Item Name:</div>
-                    <div class="col-md-8 review-value">{{ item.name }}</div>
+    <h2 class="text-center mb-4">Review Item Details</h2>
+
+    <form action="{{ url_for('item_masterlist') }}" method="post">
+        <!-- Item Details Card -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h3 class="card-title mb-4">Item Details</h3>
+                
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <label class="form-label">Item Name</label>
+                        <input type="text" class="form-control" value="{{ item.name }}" readonly>
+                    </div>
                 </div>
-                <div class="row g-3 mb-2">
-                    <div class="col-md-4 review-label">Rev No.:</div>
-                    <div class="col-md-8 review-value">{{ item.revision }}</div>
-                </div>
-                <div class="row g-3 mb-2">
-                    <div class="col-md-4 review-label">No. of QR Code:</div>
-                    <div class="col-md-8 review-value">{{ item.code_count }}</div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Rev No.</label>
+                        <input type="text" class="form-control" value="{{ item.revision }}" readonly>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">No. of Code</label>
+                        <input type="text" class="form-control" value="{{ item.code_count }}" readonly>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Individual Code Details -->
-            {% set categories = item.category.split(',') %}
-            {% set label_contents = item.label_content.split(',') %}
-            {% for i in range(item.code_count) %}
-            <div class="mb-4">
-                <h3 class="mb-3">Code {{ i + 1 }} Details</h3>
-                <div class="row g-3 mb-2">
-                    <div class="col-md-4 review-label">Category:</div>
-                    <div class="col-md-8 review-value">{{ categories[i]|trim }}</div>
-                </div>
-                <div class="row g-3 mb-2">
-                    <div class="col-md-4 review-label">Label Content:</div>
-                    <div class="col-md-8 review-value">{{ label_contents[i]|trim }}</div>
-                </div>
-            </div>
-            {% endfor %}
-
-            <!-- Sub-Lot Configurations Section -->
-            {% if enabled_sublots is defined %}
-            <div class="mb-4">
-                <h3 class="mb-3">Sub-Lot Configurations</h3>
-                {% for index, enabled in enabled_sublots.items() %}
-                    {% if enabled %}
-                    <div class="row g-3 mb-2">
-                        <div class="col-md-4 review-label">Code {{ index + 1 }} Sub-Lot:</div>
-                        <div class="col-md-8 review-value">
-                            Enabled ({{ serial_numbers.get(index, 'N/A') }} serial numbers)
+        <!-- Code Details Cards -->
+        {% set categories = item.category.split(',') %}
+        {% set label_contents = item.label_content.split(',') %}
+        {% for i in range(item.code_count) %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Code {{ i + 1 }}</h5>
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label d-block">Category</label>
+                            <div class="btn-group" role="group">
+                                {% if categories[i]|trim == 'Counting' %}
+                                    <span class="btn btn-outline-primary disabled">Counting</span>
+                                {% else %}
+                                    <span class="btn btn-outline-primary disabled">Non-Counting</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <label class="form-label">Label Content</label>
+                            <input type="text" class="form-control" value="{{ label_contents[i]|trim }}" readonly>
                         </div>
                     </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-            {% endif %}
-
-            <!-- Form for Registration -->
-            <form action="{{ url_for('item_masterlist') }}" method="post">
-                <!-- Hidden inputs -->
-                <input type="hidden" name="name" value="{{ item.name }}">
-                <input type="hidden" name="revision" value="{{ item.revision }}">
-                <input type="hidden" name="code_count" value="{{ item.code_count }}">
-                
-                {% for i in range(1, item.code_count + 1) %}
-                    <input type="hidden" name="category_{{ i }}" value="{{ item['category_' ~ i] }}">
-                    <input type="hidden" name="label_content_{{ i }}" value="{{ item['label_content_' ~ i] }}">
-                {% endfor %}
-
-                <!-- Submit Button -->
-                <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-primary px-4 py-2">
-                        Register
-                    </button>
                 </div>
-            </form>
+            </div>
+        {% endfor %}
+
+        <!-- Hidden inputs for form submission -->
+        <input type="hidden" name="name" value="{{ item.name }}">
+        <input type="hidden" name="revision" value="{{ item.revision }}">
+        <input type="hidden" name="code_count" value="{{ item.code_count }}">
+        
+        {% for i in range(1, item.code_count + 1) %}
+            <input type="hidden" name="category_{{ i }}" value="{{ item['category_' ~ i] }}">
+            <input type="hidden" name="label_content_{{ i }}" value="{{ item['label_content_' ~ i] }}">
+        {% endfor %}
+
+        <!-- Submit Button -->
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary px-4 py-2">Register</button>
         </div>
-    </div>
+    </form>
 </div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .form-control[readonly] {
+        background-color: #f8f9fa;
+        opacity: 1;
+    }
+
+    .btn.disabled {
+        opacity: 1;
+        pointer-events: none;
+    }
+</style>
 {% endblock %} 

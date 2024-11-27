@@ -15,6 +15,8 @@ const URLS_TO_CACHE = {
         '/login',
         '/engineering',
         '/item-masterlist',
+        '/register-item',
+        '/create-item',
         '/assembly-login',
         '/assembly',
         '/offline.html'

@@ -61,8 +61,11 @@
     }
 </style>
 {% endblock %}
+{% block navbar %}
+{% endblock %}
 
 {% block content %}
+<div class="container-fluid d-flex flex-row justify-content-center p-0">
 <div class="login-container">
     <div class="image-container">
         <img src="{{ url_for('static', filename='img/jae-logo.jpg') }}" alt="JAE Logo" class="img-fluid">
@@ -88,6 +91,7 @@
             </div>
         </form>
     </div>
+</div>
 </div>
 
 {% endblock %}
